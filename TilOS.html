@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TilOS 1.0</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;}
+body,html{width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Tahoma,sans-serif;}
+#root{width:100vw;height:100vh;position:relative;overflow:hidden;background:#0a1628;}
+#wallpaper{position:absolute;inset:0;background:linear-gradient(160deg,#0a1628 0%,#0d2a52 50%,#0a3d7a 100%);}
+#wallpaper::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(13,110,253,0.15) 0%,transparent 70%);top:-200px;right:-150px;}
+#wallpaper::after{content:'TilOS';position:absolute;bottom:80px;left:50%;transform:translateX(-50%);font-size:160px;font-weight:900;color:rgba(255,255,255,0.025);letter-spacing:40px;white-space:nowrap;}
+#desktop{position:absolute;inset:0;bottom:48px;padding:24px;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:8px;}
+.icon{width:84px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:12px;transition:background 0.2s;}
+.icon:hover{background:rgba(255,255,255,0.12);}
+.ibox{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);}
+.icon span{font-size:11px;color:#fff;text-align:center;text-shadow:0 1px 4px #000;line-height:1.3;}
+
+/* Taskbar */
+#taskbar{position:absolute;bottom:0;left:0;right:0;height:48px;background:rgba(8,14,28,0.96);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:1000;}
+#startbtn{width:40px;height:40px;background:#0d6efd;border-radius:8px;border:none;cursor:pointer;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;}
+#startbtn:hover{background:#0b5ed7;}
+#tbapps{display:flex;gap:4px;flex:1;overflow:hidden;}
+.tbapp{padding:4px 14px;background:rgba(255,255,255,0.07);border-radius:6px;color:#bbb;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);white-space:nowrap;transition:all 0.2s;}
+.tbapp:hover{background:rgba(255,255,255,0.12);}
+.tbapp.active{background:rgba(13,110,253,0.3);border-color:rgba(13,110,253,0.6);color:#fff;}
+#tbright{display:flex;align-items:center;gap:10px;padding:0 8px;border-left:1px solid rgba(255,255,255,0.08);}
+#clock{color:#bbb;font-size:12px;text-align:center;line-height:1.4;cursor:default;}
+
+/* Start Menu */
+#startmenu{position:absolute;bottom:52px;left:10px;width:290px;background:rgba(10,16,30,0.98);border-radius:14px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 24px 70px rgba(0,0,0,0.85);padding:14px;z-index:2000;display:none;animation:smIn 0.15s ease;}
+@keyframes smIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+#startmenu.open{display:block;}
+.smtitle{color:#555;font-size:11px;margin-bottom:8px;padding:0 6px;text-transform:uppercase;letter-spacing:1px;}
+.smitem{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;color:#ccc;font-size:13px;transition:background 0.15s;}
+.smitem:hover{background:rgba(13,110,253,0.22);color:#fff;}
+.smitem .si{font-size:22px;width:30px;text-align:center;}
+.smdiv{border-top:1px solid rgba(255,255,255,0.07);margin:8px 0;}
+
+/* Right Click Menu */
+#ctxmenu{position:fixed;background:rgba(12,20,36,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:10px;box-shadow:0 16px 50px rgba(0,0,0,0.8);padding:6px;z-index:9999;display:none;min-width:200px;animation:ctxIn 0.1s ease;}
+@keyframes ctxIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+.ctx-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:7px;cursor:pointer;color:#ccc;font-size:13px;transition:background 0.12s;}
+.ctx-item:hover{background:rgba(13,110,253,0.25);color:#fff;}
+.ctx-item .ci{font-size:16px;width:20px;text-align:center;}
+.ctx-div{border-top:1px solid rgba(255,255,255,0.07);margin:4px 0;}
+.ctx-item.danger{color:#ff5f57;}
+.ctx-item.danger:hover{background:rgba(255,95,87,0.15);}
+
+/* Windows */
+.win{position:absolute;background:#18243a;border-radius:12px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 28px 80px rgba(0,0,0,0.75);display:flex;flex-direction:column;overflow:hidden;min-width:280px;animation:winIn 0.15s ease;}
+@keyframes winIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
+.winbar{height:38px;background:#0f1b2d;display:flex;align-items:center;padding:0 12px;gap:8px;cursor:move;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.wintitle{flex:1;color:#ccc;font-size:13px;font-weight:600;}
+.winctrls{display:flex;gap:7px;}
+.wbtn{width:14px;height:14px;border-radius:50%;border:none;cursor:pointer;transition:opacity 0.15s;}
+.wbtn:hover{opacity:0.8;}
+.wbtn.cl{background:#ff5f57;}
+.wbtn.mn{background:#febc2e;}
+.wbtn.mx{background:#28c840;}
+.wincontent{flex:1;overflow:auto;}
+
+/* Notepad */
+.np-textarea{width:100%;height:100%;padding:14px;font-family:'Courier New',monospace;font-size:13px;color:#222;border:none;outline:none;resize:none;background:#fafafa;}
+
+/* Explorer */
+.expbar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:#0c1828;border-bottom:1px solid rgba(255,255,255,0.07);}
+.expgrid{display:flex;flex-wrap:wrap;gap:12px;padding:14px;}
+.expitem{width:74px;text-align:center;cursor:pointer;padding:8px 4px;border-radius:10px;transition:background 0.15s;}
+.expitem:hover{background:rgba(13,110,253,0.18);}
+.expitem .ei{font-size:34px;}
+.expitem .en{font-size:11px;color:#aaa;margin-top:4px;word-break:break-word;line-height:1.3;}
+
+/* Calculator */
+#calcwrap{padding:16px;background:#111e30;}
+#cdisp{background:#090f1c;color:#4db3ff;font-size:32px;font-weight:700;text-align:right;padding:14px 18px;border-radius:10px;margin-bottom:14px;min-height:62px;word-break:break-all;letter-spacing:2px;font-family:'Courier New',monospace;}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.cbtn{padding:15px;border-radius:10px;border:none;cursor:pointer;font-size:17px;font-weight:600;transition:transform 0.1s,opacity 0.1s;}
+.cbtn:active{transform:scale(0.92);}
+.cbtn.n{background:#1c2e45;color:#ddd;}.cbtn.n:hover{background:#233550;}
+.cbtn.o{background:#0a3d8a;color:#fff;}.cbtn.o:hover{background:#0b48a8;}
+.cbtn.e{background:#0d6efd;color:#fff;}.cbtn.e:hover{background:#0b5ed7;}
+.cbtn.f{background:#0e1c2e;color:#888;}.cbtn.f:hover{background:#162436;}
+
+/* Terminal */
+#term{display:flex;flex-direction:column;height:100%;}
+#termout{flex:1;background:#07101c;color:#3ddc84;font-family:'Courier New',monospace;font-size:13px;padding:12px;overflow-y:auto;min-height:0;line-height:1.6;}
+#terminput{display:flex;align-items:center;gap:8px;background:#080f1a;padding:9px 14px;border-top:1px solid rgba(13,110,253,0.25);flex-shrink:0;}
+#tprompt{color:#0d6efd;font-family:'Courier New',monospace;font-size:13px;white-space:nowrap;font-weight:700;}
+#tinput{flex:1;background:transparent;border:none;outline:none;color:#3ddc84;font-family:'Courier New',monospace;font-size:13px;caret-color:#3ddc84;}
+.tline{margin:1px 0;}
+
+/* Settings */
+.settings-wrap{display:flex;height:100%;}
+.settings-nav{width:160px;background:#0c1828;border-right:1px solid rgba(255,255,255,0.07);padding:12px 8px;flex-shrink:0;}
+.sn-item{padding:10px 12px;border-radius:8px;cursor:pointer;color:#aaa;font-size:13px;transition:background 0.15s;margin-bottom:2px;}
+.sn-item:hover{background:rgba(255,255,255,0.07);color:#fff;}
+.sn-item.active{background:rgba(13,110,253,0.25);color:#fff;}
+.settings-content{flex:1;padding:20px;overflow-y:auto;}
+.s-section{margin-bottom:24px;}
+.s-title{color:#0d6efd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.s-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:#ccc;font-size:13px;}
+.s-val{color:#0d6efd;font-size:13px;}
+.toggle{width:40px;height:22px;background:#1e3045;border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;border:none;}
+.toggle.on{background:#0d6efd;}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:21px;}
+.s-info{background:#0c1828;border-radius:10px;padding:14px;margin-top:8px;}
+.si-row2{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;}
+.sik2{color:#666;}.siv2{color:#0d6efd;font-weight:600;}
+
+/* TilStore */
+.store-wrap{display:flex;flex-direction:column;height:100%;}
+.store-header{background:#0c1828;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.store-search{width:100%;background:#0a1520;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;color:#ccc;font-size:13px;outline:none;}
+.store-search::placeholder{color:#444;}
+.store-body{flex:1;overflow-y:auto;padding:16px;}
+.store-section{margin-bottom:20px;}
+.store-stitle{color:#0d6efd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.store-card{background:#0c1828;border-radius:12px;border:1px solid rgba(255,255,255,0.07);padding:14px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.store-card:hover{border-color:#0d6efd;background:#0e1f38;}
+.store-card .sc-icon{font-size:36px;margin-bottom:8px;}
+.store-card .sc-name{color:#ddd;font-size:13px;font-weight:600;margin-bottom:4px;}
+.store-card .sc-cat{color:#555;font-size:11px;margin-bottom:10px;}
+.store-card .sc-btn{background:#0d6efd;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;width:100%;transition:background 0.2s;}
+.store-card .sc-btn:hover{background:#0b5ed7;}
+.store-card .sc-btn.installed{background:#28c840;}
+.store-card .sc-btn.installed:hover{background:#22a835;}
+
+/* TilMusic */
+.music-wrap{display:flex;flex-direction:column;height:100%;background:#080f1c;}
+.music-header{padding:16px;background:#0c1828;border-bottom:1px solid rgba(255,255,255,0.07);}
+.music-title{color:#fff;font-size:16px;font-weight:700;margin-bottom:4px;}
+.music-sub{color:#555;font-size:12px;}
+.music-body{flex:1;overflow-y:auto;padding:12px;}
+.music-section{margin-bottom:16px;}
+.music-stitle{color:#0d6efd;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.song-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background 0.15s;}
+.song-item:hover{background:rgba(255,255,255,0.06);}
+.song-item.playing{background:rgba(13,110,253,0.15);}
+.song-num{color:#444;font-size:12px;width:20px;text-align:center;}
+.song-icon{font-size:24px;}
+.song-info{flex:1;}
+.song-name{color:#ddd;font-size:13px;font-weight:500;}
+.song-artist{color:#555;font-size:11px;margin-top:2px;}
+.song-dur{color:#444;font-size:12px;}
+.music-player{background:#0c1828;border-top:1px solid rgba(255,255,255,0.08);padding:14px 16px;}
+.player-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.player-art{width:44px;height:44px;border-radius:8px;background:#1a2a3a;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.player-song{color:#ddd;font-size:13px;font-weight:600;}
+.player-artist{color:#555;font-size:11px;margin-top:2px;}
+.player-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;}
+.pc-btn{background:none;border:none;cursor:pointer;font-size:22px;opacity:0.7;transition:opacity 0.2s;}
+.pc-btn:hover{opacity:1;}
+.pc-btn.play{font-size:32px;opacity:1;}
+.progress-wrap{display:flex;align-items:center;gap:8px;}
+.prog-time{color:#444;font-size:11px;width:35px;}
+.prog-bar{flex:1;height:4px;background:#1a2a3a;border-radius:2px;cursor:pointer;position:relative;}
+.prog-fill{height:100%;background:#0d6efd;border-radius:2px;transition:width 0.5s linear;}
+.prog-dot{width:10px;height:10px;background:#fff;border-radius:50%;position:absolute;top:-3px;right:-5px;}
+.upload-btn{background:rgba(13,110,253,0.15);border:1px dashed rgba(13,110,253,0.4);border-radius:10px;padding:14px;text-align:center;cursor:pointer;color:#0d6efd;font-size:13px;margin-bottom:12px;transition:background 0.2s;}
+.upload-btn:hover{background:rgba(13,110,253,0.25);}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="wallpaper"></div>
+  <div id="desktop">
+    <div class="icon" ondblclick="openApp('calc')"><div class="ibox">🧮</div><span>حاسبة</span></div>
+    <div class="icon" ondblclick="openApp('notepad')"><div class="ibox">📝</div><span>المفكرة</span></div>
+    <div class="icon" ondblclick="openApp('explorer')"><div class="ibox">📁</div><span>الملفات</span></div>
+    <div class="icon" ondblclick="openApp('terminal')"><div class="ibox">🖥️</div><span>Terminal</span></div>
+    <div class="icon" ondblclick="openApp('settings')"><div class="ibox">⚙️</div><span>الإعدادات</span></div>
+    <div class="icon" ondblclick="openApp('store')"><div class="ibox">🏪</div><span>TilStore</span></div>
+    <div class="icon" ondblclick="openApp('music')"><div class="ibox">🎵</div><span>TilMusic</span></div>
+  </div>
+
+  <!-- Right Click Menu -->
+  <div id="ctxmenu">
+    <div class="ctx-item" onclick="ctxAction('refresh')"><span class="ci">🔄</span>تحديث سطح المكتب</div>
+    <div class="ctx-item" onclick="ctxAction('wallpaper')"><span class="ci">🖼️</span>تغيير الخلفية</div>
+    <div class="ctx-div"></div>
+    <div class="ctx-item" onclick="ctxAction('newfile')"><span class="ci">📄</span>ملف نصي جديد</div>
+    <div class="ctx-item" onclick="ctxAction('newfolder')"><span class="ci">📁</span>مجلد جديد</div>
+    <div class="ctx-div"></div>
+    <div class="ctx-item" onclick="ctxAction('settings')"><span class="ci">⚙️</span>إعدادات العرض</div>
+    <div class="ctx-item" onclick="ctxAction('store')"><span class="ci">🏪</span>فتح TilStore</div>
+    <div class="ctx-div"></div>
+    <div class="ctx-item danger" onclick="ctxAction('shutdown')"><span class="ci">🔴</span>إيقاف التشغيل</div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="startmenu">
+    <div class="smtitle">التطبيقات</div>
+    <div class="smitem" onclick="openApp('calc');closeStart()"><span class="si">🧮</span>الحاسبة</div>
+    <div class="smitem" onclick="openApp('notepad');closeStart()"><span class="si">📝</span>المفكرة</div>
+    <div class="smitem" onclick="openApp('explorer');closeStart()"><span class="si">📁</span>مستكشف الملفات</div>
+    <div class="smitem" onclick="openApp('terminal');closeStart()"><span class="si">🖥️</span>Terminal</div>
+    <div class="smitem" onclick="openApp('settings');closeStart()"><span class="si">⚙️</span>الإعدادات</div>
+    <div class="smitem" onclick="openApp('store');closeStart()"><span class="si">🏪</span>TilStore</div>
+    <div class="smitem" onclick="openApp('music');closeStart()"><span class="si">🎵</span>TilMusic</div>
+    <div class="smdiv"></div>
+    <div class="smitem" style="color:#ff5f57" onclick="shutdown()"><span class="si">🔴</span>إيقاف التشغيل</div>
+  </div>
+
+  <div id="taskbar">
+    <button id="startbtn" onclick="toggleStart()">⊞</button>
+    <div id="tbapps"></div>
+    <div id="tbright">
+      <span style="font-size:18px;cursor:pointer" title="الصوت">🔊</span>
+      <span style="font-size:18px;cursor:pointer" title="الشبكة">📶</span>
+      <div id="clock"></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="music-file-input" accept="audio/*" style="display:none" multiple>
+
+<script>
+const openedApps={};let zt=50;
+const wallpapers=[
+  'linear-gradient(160deg,#0a1628 0%,#0d2a52 50%,#0a3d7a 100%)',
+  'linear-gradient(160deg,#1a0a28 0%,#2d0d52 50%,#3d0a7a 100%)',
+  'linear-gradient(160deg,#0a1e10 0%,#0d3d1a 50%,#0a5a20 100%)',
+  'linear-gradient(160deg,#1e0a0a 0%,#3d0d0d 50%,#5a0a0a 100%)',
+  'linear-gradient(160deg,#1a1a0a 0%,#3d3d0d 50%,#5a5a0a 100%)',
+];
+let wallIdx=0;
+
+function updateClock(){
+  const n=new Date();
+  const h=String(n.getHours()).padStart(2,'0');
+  const m=String(n.getMinutes()).padStart(2,'0');
+  const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  document.getElementById('clock').innerHTML=h+':'+m+'<br><span style="font-size:10px;color:#555">'+days[n.getDay()]+'</span>';
+}
+updateClock();setInterval(updateClock,1000);
+
+// Right Click
+document.getElementById('root').addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const menu=document.getElementById('ctxmenu');
+  menu.style.display='block';
+  let x=e.clientX,y=e.clientY;
+  if(x+210>window.innerWidth)x=window.innerWidth-215;
+  if(y+280>window.innerHeight)y=window.innerHeight-285;
+  menu.style.left=x+'px';menu.style.top=y+'px';
+});
+document.addEventListener('mousedown',e=>{
+  if(!document.getElementById('ctxmenu').contains(e.target))
+    document.getElementById('ctxmenu').style.display='none';
+});
+
+function ctxAction(a){
+  document.getElementById('ctxmenu').style.display='none';
+  if(a==='refresh'){document.getElementById('root').style.opacity='0.7';setTimeout(()=>document.getElementById('root').style.opacity='1',300);}
+  else if(a==='wallpaper'){wallIdx=(wallIdx+1)%wallpapers.length;document.getElementById('wallpaper').style.background=wallpapers[wallIdx];}
+  else if(a==='newfile'){openApp('notepad');}
+  else if(a==='newfolder'){alert('📁 تم إنشاء مجلد جديد!');}
+  else if(a==='settings'){openApp('settings');}
+  else if(a==='store'){openApp('store');}
+  else if(a==='shutdown'){shutdown();}
+}
+
+function toggleStart(){document.getElementById('startmenu').classList.toggle('open');}
+function closeStart(){document.getElementById('startmenu').classList.remove('open');}
+function shutdown(){
+  if(confirm('هل تريد إيقاف تشغيل TilOS؟')){
+    closeStart();
+    document.getElementById('root').style.transition='opacity 1.5s';
+    document.getElementById('root').style.opacity='0';
+    setTimeout(()=>{document.body.style.background='#000';},1500);
+  }
+}
+document.addEventListener('mousedown',e=>{
+  const sm=document.getElementById('startmenu');
+  if(!sm.contains(e.target)&&e.target.id!=='startbtn')closeStart();
+});
+
+function openApp(id){
+  if(openedApps[id]){bringFront(openedApps[id]);openedApps[id].style.display='flex';return;}
+  const cfgs={
+    calc:{title:'🧮 الحاسبة',w:260,h:390,x:100,y:60},
+    notepad:{title:'📝 المفكرة',w:420,h:300,x:180,y:80},
+    explorer:{title:'📁 مستكشف الملفات',w:460,h:320,x:80,y:110},
+    terminal:{title:'🖥️ Terminal',w:520,h:320,x:140,y:90},
+    settings:{title:'⚙️ الإعدادات',w:500,h:360,x:160,y:70},
+    store:{title:'🏪 TilStore',w:520,h:400,x:120,y:60},
+    music:{title:'🎵 TilMusic',w:460,h:480,x:200,y:50},
+  };
+  const c=cfgs[id];if(!c)return;
+  const win=document.createElement('div');
+  win.className='win';win.id='w-'+id;
+  win.style.cssText=`width:${c.w}px;height:${c.h}px;left:${c.x}px;top:${c.y}px;z-index:${++zt}`;
+  win.innerHTML=`<div class="winbar" id="wb-${id}"><div class="winctrls"><button class="wbtn cl" onclick="closeApp('${id}')"></button><button class="wbtn mn" onclick="minApp('${id}')"></button><button class="wbtn mx" onclick="maxApp('${id}')"></button></div><div class="wintitle">${c.title}</div></div><div class="wincontent" id="wc-${id}"></div>`;
+  document.getElementById('root').appendChild(win);
+  openedApps[id]=win;
+  makeDrag(win,document.getElementById('wb-'+id));
+  win.addEventListener('mousedown',()=>bringFront(win));
+  buildContent(id);
+  addTb(id,c.title);
+}
+
+function bringFront(w){w.style.zIndex=++zt;}
+function closeApp(id){const w=openedApps[id];if(w){w.remove();delete openedApps[id];}rmTb(id);if(id==='music')stopMusic();}
+function minApp(id){const w=openedApps[id];if(w)w.style.display=w.style.display==='none'?'flex':'none';}
+function maxApp(id){
+  const w=openedApps[id];if(!w)return;
+  if(w._max){w.style.cssText=w._saved;w._max=false;}
+  else{w._saved=w.style.cssText;w.style.left='0';w.style.top='0';w.style.width='100vw';w.style.height='calc(100vh - 48px)';w.style.zIndex=++zt;w.style.borderRadius='0';w._max=true;}
+}
+function addTb(id,title){
+  const t=document.getElementById('tbapps');
+  const el=document.createElement('div');
+  el.className='tbapp active';el.id='tb-'+id;
+  el.textContent=title.replace(/\p{Emoji}/gu,'').trim().slice(0,14)||title.slice(2,16);
+  el.onclick=()=>{const w=openedApps[id];if(w){if(w.style.display==='none'){w.style.display='flex';bringFront(w);}else w.style.display='none';}};
+  t.appendChild(el);
+}
+function rmTb(id){const el=document.getElementById('tb-'+id);if(el)el.remove();}
+function makeDrag(win,handle){
+  let ox=0,oy=0;
+  handle.addEventListener('mousedown',e=>{
+    if(e.target.classList.contains('wbtn'))return;
+    e.preventDefault();
+    ox=e.clientX-win.offsetLeft;oy=e.clientY-win.offsetTop;
+    const mv=e=>{
+      win.style.left=Math.max(0,Math.min(window.innerWidth-50,e.clientX-ox))+'px';
+      win.style.top=Math.max(0,Math.min(window.innerHeight-48,e.clientY-oy))+'px';
+    };
+    const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+  });
+}
+
+// Build Content
+function buildContent(id){
+  const wc=document.getElementById('wc-'+id);
+  if(id==='notepad'){
+    wc.innerHTML='<textarea class="np-textarea" placeholder="اكتب هنا..."></textarea>';
+    wc.style.height='100%';
+  }
+  else if(id==='explorer'){
+    const files=[{i:'📁',n:'المستندات'},{i:'📁',n:'الصور'},{i:'📁',n:'التنزيلات'},{i:'📁',n:'الموسيقى'},{i:'📄',n:'readme.txt'},{i:'🎵',n:'music.mp3'},{i:'🖼️',n:'photo.png'},{i:'📊',n:'data.xlsx'},{i:'⚙️',n:'config.sys'},{i:'🗑️',n:'المهملات'}];
+    wc.innerHTML=`<div class="expbar"><span style="color:#0d6efd;font-size:20px">🖥️</span><span style="color:#666;font-size:12px;margin-left:6px">TilOS / الجهاز</span></div><div class="expgrid">${files.map(f=>`<div class="expitem"><div class="ei">${f.i}</div><div class="en">${f.n}</div></div>`).join('')}</div>`;
+  }
+  else if(id==='calc'){
+    wc.innerHTML=`<div id="calcwrap"><div id="cdisp">0</div><div class="cgrid">
+      <button class="cbtn f" onclick="cf('C')">C</button><button class="cbtn f" onclick="cf('+/-')">±</button><button class="cbtn f" onclick="cf('%')">%</button><button class="cbtn o" onclick="co('/')">÷</button>
+      <button class="cbtn n" onclick="cn('7')">7</button><button class="cbtn n" onclick="cn('8')">8</button><button class="cbtn n" onclick="cn('9')">9</button><button class="cbtn o" onclick="co('*')">×</button>
+      <button class="cbtn n" onclick="cn('4')">4</button><button class="cbtn n" onclick="cn('5')">5</button><button class="cbtn n" onclick="cn('6')">6</button><button class="cbtn o" onclick="co('-')">−</button>
+      <button class="cbtn n" onclick="cn('1')">1</button><button class="cbtn n" onclick="cn('2')">2</button><button class="cbtn n" onclick="cn('3')">3</button><button class="cbtn o" onclick="co('+')">+</button>
+      <button class="cbtn n" style="grid-column:span 2" onclick="cn('0')">0</button><button class="cbtn n" onclick="cn('.')">.</button><button class="cbtn e" onclick="ceq()">=</button>
+    </div></div>`;
+  }
+  else if(id==='terminal'){
+    wc.innerHTML=`<div id="term"><div id="termout"></div><div id="terminput"><span id="tprompt">admin@TilOS:~$&nbsp;</span><input type="text" id="tinput" autocomplete="off" spellcheck="false" placeholder="اكتب أمر واضغط Enter..."/></div></div>`;
+    wc.style.cssText='display:flex;flex-direction:column;height:100%;';
+    document.getElementById('term').style.cssText='display:flex;flex-direction:column;height:100%;';
+    initTerm();
+  }
+  else if(id==='settings'){buildSettings(wc);}
+  else if(id==='store'){buildStore(wc);}
+  else if(id==='music'){buildMusic(wc);}
+}
+
+// Calculator
+let cv='0',cop=null,cprev=null,cnew=true;
+function cd(){const el=document.getElementById('cdisp');if(el)el.textContent=cv;}
+function cn(n){if(cnew){cv=n==='.'?'0.':n;cnew=false;}else{if(n==='.'&&cv.includes('.'))return;cv=cv==='0'&&n!=='.'?n:cv+n;}cd();}
+function co(op){if(cop&&!cnew)ceq();cprev=parseFloat(cv);cop=op;cnew=true;}
+function ceq(){if(!cop||cprev===null)return;const cur=parseFloat(cv);let r;if(cop==='+')r=cprev+cur;else if(cop==='-')r=cprev-cur;else if(cop==='*')r=cprev*cur;else if(cop==='/')r=cur===0?'خطأ':cprev/cur;cv=r==='خطأ'?'خطأ':String(parseFloat(r.toFixed(10)));cop=null;cprev=null;cnew=true;cd();}
+function cf(fn){let v=parseFloat(cv);if(fn==='C'){cv='0';cop=null;cprev=null;cnew=true;}else if(fn==='+/-')cv=String(-v);else if(fn==='%')cv=String(v/100);cd();}
+
+// Terminal
+function initTerm(){
+  const out=document.getElementById('termout'),inp=document.getElementById('tinput');
+  if(!out||!inp)return;
+  const p=(txt,col='#3ddc84')=>{const d=document.createElement('div');d.className='tline';d.style.color=col;d.innerHTML=txt;out.appendChild(d);out.scrollTop=out.scrollHeight;};
+  p('<span style="color:#0d6efd;font-size:15px;font-weight:bold">TilOS Terminal v1.0</span>','#fff');
+  p('مرحباً! اكتب <span style="color:#febc2e">help</span> لعرض الأوامر.','#666');p('');
+  const cmds={
+    help:()=>{p('┌──────────────────────────────┐','#0d6efd');p('│      الأوامر المتاحة          │','#0d6efd');p('└──────────────────────────────┘','#0d6efd');['help','ls','date','time','whoami','uname','clear','color','echo [نص]','calc','music','store','hello'].forEach(c=>p('  '+c,'#febc2e'));},
+    ls:()=>{['📄 readme.txt','📁 home','📁 tmp','⚙️  system','🎵 music.mp3','🖼️  photos'].forEach(f=>p(f));},
+    date:()=>p(new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})),
+    time:()=>p(new Date().toLocaleTimeString('ar-EG')),
+    whoami:()=>{p('المستخدم: <span style="color:#febc2e">admin</span>');p('الصلاحيات: <span style="color:#28c840">مدير النظام 👑</span>');},
+    uname:()=>{p('TilOS 1.0.0 (TilCore™ X9 x86_64)');p('الذاكرة: 8 GB | المساحة: 512 GB');},
+    clear:()=>{out.innerHTML='';},
+    color:()=>{const colors=['#3ddc84','#4db3ff','#febc2e','#ff79c6','#c792ea','#80ffea'];out.style.color=colors[Math.floor(Math.random()*colors.length)];p('✓ تم تغيير اللون!');},
+    calc:()=>{openApp('calc');p('✓ تم فتح الحاسبة 🧮');},
+    music:()=>{openApp('music');p('✓ تم فتح TilMusic 🎵');},
+    store:()=>{openApp('store');p('✓ تم فتح TilStore 🏪');},
+    hello:()=>p('أهلاً وسهلاً! TilOS يرحب بك 🎉','#febc2e'),
+  };
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const raw=inp.value.trim();inp.value='';
+      if(!raw)return;
+      p(`<span style="color:#0d6efd;font-weight:bold">admin@TilOS:~$</span> <span style="color:#fff">${raw}</span>`,'');
+      const parts=raw.split(' ');const cmd=parts[0].toLowerCase();
+      if(cmd==='echo')p(parts.slice(1).join(' ')||'');
+      else if(cmds[cmd])cmds[cmd]();
+      else p(`bash: <span style="color:#ff5f57">${cmd}</span>: غير موجود — جرب <span style="color:#febc2e">help</span>`,'#ff5f57');
+      p('');
+    }
+  });
+  setTimeout(()=>inp.focus(),200);
+}
+
+// Settings
+let toggleStates={darkmode:true,notif:true,sound:true,updates:false};
+function buildSettings(wc){
+  wc.style.height='100%';
+  wc.innerHTML=`<div class="settings-wrap">
+    <div class="settings-nav">
+      <div class="sn-item active" onclick="showSettingsPage('general',this)">🖥️ عام</div>
+      <div class="sn-item" onclick="showSettingsPage('display',this)">🎨 العرض</div>
+      <div class="sn-item" onclick="showSettingsPage('sound',this)">🔊 الصوت</div>
+      <div class="sn-item" onclick="showSettingsPage('about',this)">💻 حول النظام</div>
+    </div>
+    <div class="settings-content" id="settings-page">
+      ${settingsGeneral()}
+    </div>
+  </div>`;
+}
+function showSettingsPage(page,el){
+  document.querySelectorAll('.sn-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  const pages={general:settingsGeneral,display:settingsDisplay,sound:settingsSound,about:settingsAbout};
+  document.getElementById('settings-page').innerHTML=(pages[page]||settingsGeneral)();
+}
+function settingsGeneral(){return`<div class="s-section"><div class="s-title">الإعدادات العامة</div>
+  <div class="s-row"><span>الوضع الداكن</span><button class="toggle on" id="tg-dark" onclick="togSet('dark',this)"></button></div>
+  <div class="s-row"><span>الإشعارات</span><button class="toggle on" id="tg-notif" onclick="togSet('notif',this)"></button></div>
+  <div class="s-row"><span>التحديثات التلقائية</span><button class="toggle" id="tg-upd" onclick="togSet('upd',this)"></button></div>
+  <div class="s-row"><span>اللغة</span><span class="s-val">العربية</span></div>
+  <div class="s-row"><span>المنطقة الزمنية</span><span class="s-val">القاهرة UTC+3</span></div>
+</div>`;}
+function settingsDisplay(){return`<div class="s-section"><div class="s-title">إعدادات العرض</div>
+  <div class="s-row"><span>الخلفية</span><button onclick="ctxAction('wallpaper')" style="background:#0d6efd;border:none;border-radius:6px;color:#fff;padding:5px 12px;cursor:pointer;font-size:12px;">تغيير</button></div>
+  <div class="s-row"><span>دقة الشاشة</span><span class="s-val">1920×1080</span></div>
+  <div class="s-row"><span>حجم الخط</span><span class="s-val">13px</span></div>
+  <div class="s-row"><span>تأثيرات الشفافية</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+</div>`;}
+function settingsSound(){return`<div class="s-section"><div class="s-title">إعدادات الصوت</div>
+  <div class="s-row"><span>تفعيل الصوت</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+  <div class="s-row"><span>مستوى الصوت</span><span class="s-val">80%</span></div>
+  <div class="s-row"><span>أصوات النظام</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+</div>`;}
+function settingsAbout(){return`<div class="s-section"><div class="s-title">حول TilOS</div>
+  <div class="s-info">
+    <div class="si-row2"><span class="sik2">اسم النظام</span><span class="siv2">TilOS</span></div>
+    <div class="si-row2"><span class="sik2">الإصدار</span><span class="siv2">1.0.0 Stable</span></div>
+    <div class="si-row2"><span class="sik2">المعالج</span><span class="siv2">TilCore™ X9</span></div>
+    <div class="si-row2"><span class="sik2">الذاكرة</span><span class="siv2">8 GB RAM</span></div>
+    <div class="si-row2"><span class="sik2">المساحة</span><span class="siv2">512 GB SSD</span></div>
+    <div class="si-row2"><span class="sik2">المستخدم</span><span class="siv2">Admin</span></div>
+    <div class="si-row2"><span class="sik2">Build</span><span class="siv2">2025.1.0</span></div>
+  </div>
+</div>`;}
+function togSet(k,btn){btn.classList.toggle('on');}
+
+// TilStore
+const storeApps=[
+  {i:'🎵',n:'TilMusic',cat:'ترفيه',id:'music',installed:true},
+  {i:'🖥️',n:'Terminal Pro',cat:'أدوات',id:'terminal',installed:true},
+  {i:'🎮',n:'TilGames',cat:'ألعاب',id:null,installed:false},
+  {i:'📰',n:'TilNews',cat:'أخبار',id:null,installed:false},
+  {i:'📸',n:'TilCamera',cat:'صور',id:null,installed:false},
+  {i:'🗓️',n:'TilCalendar',cat:'إنتاجية',id:null,installed:false},
+  {i:'📧',n:'TilMail',cat:'تواصل',id:null,installed:false},
+  {i:'🌐',n:'TilBrowser',cat:'إنترنت',id:null,installed:false},
+];
+function buildStore(wc){
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;';
+  wc.innerHTML=`<div class="store-wrap">
+    <div class="store-header">
+      <input class="store-search" placeholder="🔍  ابحث عن تطبيق..." oninput="filterStore(this.value)"/>
+    </div>
+    <div class="store-body">
+      <div class="store-section">
+        <div class="store-stitle">جميع التطبيقات</div>
+        <div class="store-grid" id="store-grid">
+          ${storeApps.map(a=>storeCard(a)).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function storeCard(a){
+  return`<div class="store-card">
+    <div class="sc-icon">${a.i}</div>
+    <div class="sc-name">${a.n}</div>
+    <div class="sc-cat">${a.cat}</div>
+    <button class="sc-btn ${a.installed?'installed':''}" onclick="installApp('${a.id||a.n}','${a.installed}',this)">
+      ${a.installed?'مثبت ✓':'تثبيت'}
+    </button>
+  </div>`;
+}
+function filterStore(q){
+  const grid=document.getElementById('store-grid');if(!grid)return;
+  const filtered=storeApps.filter(a=>a.n.includes(q)||a.cat.includes(q));
+  grid.innerHTML=filtered.map(a=>storeCard(a)).join('');
+}
+function installApp(id,installed,btn){
+  if(installed==='true'){if(id)openApp(id);return;}
+  btn.textContent='جاري التثبيت...';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='مثبت ✓';btn.className='sc-btn installed';btn.disabled=false;},2000);
+}
+
+// TilMusic
+let audio=null,musicPlaying=false,currentSong=null,progInterval=null;
+const builtinSongs=[
+  {name:'Midnight Drive',artist:'TilBeats',dur:'3:42',emoji:'🌙'},
+  {name:'Digital Dreams',artist:'CyberWave',dur:'4:15',emoji:'💫'},
+  {name:'Neon Lights',artist:'SynthCity',dur:'3:58',emoji:'🌆'},
+  {name:'Ocean Breeze',artist:'ChillZone',dur:'5:20',emoji:'🌊'},
+  {name:'Morning Coffee',artist:'LoFi Studio',dur:'3:10',emoji:'☕'},
+];
+let userSongs=[];
+function buildMusic(wc){
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;';
+  wc.innerHTML=`<div class="music-wrap">
+    <div class="music-header">
+      <div class="music-title">🎵 TilMusic</div>
+      <div class="music-sub">استمع لموسيقاك المفضلة</div>
+    </div>
+    <div class="music-body">
+      <div class="music-section">
+        <div class="music-stitle">أضف موسيقاك</div>
+        <div class="upload-btn" onclick="document.getElementById('music-file-input').click()">
+          ➕ اضغط لإضافة أغاني من جهازك
+        </div>
+        <div id="user-songs-list"></div>
+      </div>
+      <div class="music-section">
+        <div class="music-stitle">أغاني TilMusic</div>
+        <div id="builtin-songs">
+          ${builtinSongs.map((s,i)=>`<div class="song-item" id="song-${i}" onclick="playSong(${i},false)">
+            <span class="song-num">${i+1}</span>
+            <span class="song-icon">${s.emoji}</span>
+            <div class="song-info"><div class="song-name">${s.name}</div><div class="song-artist">${s.artist}</div></div>
+            <span class="song-dur">${s.dur}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="music-player">
+      <div class="player-info">
+        <div class="player-art" id="player-art">🎵</div>
+        <div><div class="player-song" id="player-song">اختر أغنية</div><div class="player-artist" id="player-artist">TilMusic</div></div>
+      </div>
+      <div class="player-controls">
+        <button class="pc-btn" onclick="prevSong()">⏮</button>
+        <button class="pc-btn play" id="play-btn" onclick="togglePlay()">▶️</button>
+        <button class="pc-btn" onclick="nextSong()">⏭</button>
+      </div>
+      <div class="progress-wrap">
+        <span class="prog-time" id="prog-cur">0:00</span>
+        <div class="prog-bar" onclick="seekMusic(event,this)">
+          <div class="prog-fill" id="prog-fill" style="width:0%"><div class="prog-dot"></div></div>
+        </div>
+        <span class="prog-time" id="prog-total" style="text-align:right">0:00</span>
+      </div>
+    </div>
+  </div>`;
+  renderUserSongs();
+}
+function renderUserSongs(){
+  const el=document.getElementById('user-songs-list');
+  if(!el)return;
+  if(userSongs.length===0){el.innerHTML='<div style="color:#333;font-size:12px;padding:8px 0;">لم تضف أغاني بعد</div>';return;}
+  el.innerHTML=userSongs.map((s,i)=>`<div class="song-item" id="usong-${i}" onclick="playUserSong(${i})">
+    <span class="song-num">${i+1}</span><span class="song-icon">🎵</span>
+    <div class="song-info"><div class="song-name">${s.name}</div><div class="song-artist">ملفاتي</div></div>
+    <span class="song-dur">—</span>
+  </div>`).join('');
+}
+document.getElementById('music-file-input').addEventListener('change',function(e){
+  Array.from(e.target.files).forEach(file=>{
+    userSongs.push({name:file.name.replace(/\.[^.]+$/,''),file});
+  });
+  renderUserSongs();
+  this.value='';
+});
+function playSong(idx,isUser){
+  document.querySelectorAll('.song-item').forEach(el=>el.classList.remove('playing'));
+  if(audio){audio.pause();audio=null;}
+  clearInterval(progInterval);
+  if(isUser){
+    const s=userSongs[idx];if(!s)return;
+    const id=document.getElementById('usong-'+idx);if(id)id.classList.add('playing');
+    audio=new Audio(URL.createObjectURL(s.file));
+    updatePlayerUI(s.name,'ملفاتي','🎵');
+  } else {
+    const s=builtinSongs[idx];if(!s)return;
+    const id=document.getElementById('song-'+idx);if(id)id.classList.add('playing');
+    updatePlayerUI(s.name,s.artist,s.emoji);
+    document.getElementById('play-btn').textContent='⏸️';
+    musicPlaying=true;currentSong={idx,isUser:false};
+    startFakeProgress(s.dur);return;
+  }
+  if(audio){
+    audio.play().catch(()=>{});
+    audio.addEventListener('loadedmetadata',()=>{
+      const tot=audio.duration;
+      document.getElementById('prog-total').textContent=fmtTime(tot);
+    });
+    progInterval=setInterval(()=>{
+      if(!audio)return;
+      const pct=audio.duration?(audio.currentTime/audio.duration)*100:0;
+      const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
+      const pc=document.getElementById('prog-cur');if(pc)pc.textContent=fmtTime(audio.currentTime);
+    },500);
+    musicPlaying=true;currentSong={idx,isUser:true};
+    document.getElementById('play-btn').textContent='⏸️';
+  }
+}
+function playUserSong(idx){playSong(idx,true);}
+let fakeTime=0,fakeDur=0,fakeMax=0;
+function startFakeProgress(durStr){
+  const parts=durStr.split(':');fakeDur=parseInt(parts[0])*60+parseInt(parts[1]);fakeTime=0;fakeMax=fakeDur;
+  document.getElementById('prog-total').textContent=durStr;
+  clearInterval(progInterval);
+  progInterval=setInterval(()=>{
+    if(!musicPlaying)return;
+    fakeTime+=1;if(fakeTime>fakeMax)fakeTime=0;
+    const pct=(fakeTime/fakeMax)*100;
+    const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
+    const pc=document.getElementById('prog-cur');if(pc)pc.textContent=fmtTime(fakeTime);
+  },1000);
+}
+function updatePlayerUI(name,artist,emoji){
+  const pa=document.getElementById('player-art');if(pa)pa.textContent=emoji;
+  const ps=document.getElementById('player-song');if(ps)ps.textContent=name;
+  const par=document.getElementById('player-artist');if(par)par.textContent=artist;
+}
+function togglePlay(){
+  if(!currentSong){return;}
+  if(currentSong.isUser&&audio){
+    if(musicPlaying){audio.pause();musicPlaying=false;document.getElementById('play-btn').textContent='▶️';}
+    else{audio.play();musicPlaying=true;document.getElementById('play-btn').textContent='⏸️';}
+  } else {
+    musicPlaying=!musicPlaying;
+    document.getElementById('play-btn').textContent=musicPlaying?'⏸️':'▶️';
+  }
+}
+function nextSong(){if(!currentSong)return;const next=(currentSong.idx+1)%builtinSongs.length;playSong(next,false);}
+function prevSong(){if(!currentSong)return;const prev=(currentSong.idx-1+builtinSongs.length)%builtinSongs.length;playSong(prev,false);}
+function stopMusic(){if(audio){audio.pause();audio=null;}clearInterval(progInterval);musicPlaying=false;}
+function seekMusic(e,bar){
+  if(!currentSong||currentSong.isUser||!audio)return;
+  const pct=e.offsetX/bar.offsetWidth;
+  if(audio)audio.currentTime=audio.duration*pct;
+  else fakeTime=Math.floor(fakeMax*pct);
+}
+function fmtTime(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+</script>
+</body>
+</html>
