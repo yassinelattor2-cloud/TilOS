@@ -2,193 +2,266 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>TilOS 1.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;user-select:none;}
 body,html{width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Tahoma,sans-serif;}
-#root{width:100vw;height:100vh;position:relative;overflow:hidden;background:#0a1628;}
-#wallpaper{position:absolute;inset:0;background:linear-gradient(160deg,#0a1628 0%,#0d2a52 50%,#0a3d7a 100%);}
-#wallpaper::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(13,110,253,0.15) 0%,transparent 70%);top:-200px;right:-150px;}
-#wallpaper::after{content:'TilOS';position:absolute;bottom:80px;left:50%;transform:translateX(-50%);font-size:160px;font-weight:900;color:rgba(255,255,255,0.025);letter-spacing:40px;white-space:nowrap;}
-#desktop{position:absolute;inset:0;bottom:48px;padding:24px;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:8px;}
-.icon{width:84px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:12px;transition:background 0.2s;}
-.icon:hover{background:rgba(255,255,255,0.12);}
-.ibox{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);}
-.icon span{font-size:11px;color:#fff;text-align:center;text-shadow:0 1px 4px #000;line-height:1.3;}
 
-/* Taskbar */
-#taskbar{position:absolute;bottom:0;left:0;right:0;height:48px;background:rgba(8,14,28,0.96);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 10px;gap:6px;z-index:1000;}
-#startbtn{width:40px;height:40px;background:#0d6efd;border-radius:8px;border:none;cursor:pointer;font-size:22px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;}
-#startbtn:hover{background:#0b5ed7;}
-#tbapps{display:flex;gap:4px;flex:1;overflow:hidden;}
-.tbapp{padding:4px 14px;background:rgba(255,255,255,0.07);border-radius:6px;color:#bbb;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);white-space:nowrap;transition:all 0.2s;}
-.tbapp:hover{background:rgba(255,255,255,0.12);}
+/* ===== AUTH ===== */
+#auth-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0a1628,#0d2a52,#0a3d7a);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;}
+.auth-box{background:rgba(12,20,36,0.97);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:24px 28px;width:100%;max-width:360px;box-shadow:0 30px 80px rgba(0,0,0,0.8);max-height:90vh;overflow-y:auto;}
+.auth-logo{text-align:center;margin-bottom:20px;}
+.auth-logo .al-icon{font-size:44px;}
+.auth-logo .al-name{color:#0d6efd;font-size:22px;font-weight:800;margin-top:4px;}
+.auth-tabs{display:flex;gap:3px;background:#080f1a;border-radius:10px;padding:4px;margin-bottom:18px;}
+.auth-tab{flex:1;padding:8px;text-align:center;border-radius:7px;cursor:pointer;color:#555;font-size:13px;font-weight:600;transition:all .2s;}
+.auth-tab.active{background:#0d6efd;color:#fff;}
+.auth-input{width:100%;background:#0a1520;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:11px 14px;color:#ddd;font-size:13px;outline:none;margin-bottom:10px;transition:border .2s;display:block;}
+.auth-input:focus{border-color:#0d6efd;}
+.auth-btn{width:100%;background:#0d6efd;border:none;border-radius:10px;padding:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:2px;transition:background .2s;}
+.auth-btn:hover{background:#0b5ed7;}
+.auth-err{color:#ff5f57;font-size:12px;text-align:center;margin-top:8px;min-height:18px;}
+.auth-link{color:#0d6efd;font-size:12px;text-align:center;margin-top:10px;cursor:pointer;text-decoration:underline;}
+.auth-sub{color:#444;font-size:11px;text-align:center;margin-top:10px;}
+.auth-sub span{color:#0d6efd;}
+.device-card{flex:1;background:#0a1520;border:2px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.device-card:hover,.device-card.selected{border-color:#0d6efd;background:rgba(13,110,253,0.12);}
+.recovery-card{display:flex;align-items:center;gap:12px;background:#0a1520;border:2px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;cursor:pointer;margin-bottom:8px;transition:all .2s;}
+.recovery-card:hover,.recovery-card.selected{border-color:#0d6efd;background:rgba(13,110,253,0.1);}
+.reg-step-dot{width:24px;height:24px;border-radius:50%;background:#1a2a3a;color:#555;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.reg-step-dot.active{background:#0d6efd;color:#fff;}
+
+/* ===== DESKTOP ===== */
+#root{width:100vw;height:100vh;position:relative;overflow:hidden;background:#0a1628;display:none;}
+#wallpaper{position:absolute;inset:0;background:linear-gradient(160deg,#0a1628,#0d2a52,#0a3d7a);transition:background .6s;}
+#wallpaper::after{content:'TilOS';position:absolute;bottom:70px;left:50%;transform:translateX(-50%);font-size:clamp(60px,12vw,140px);font-weight:900;color:rgba(255,255,255,0.025);letter-spacing:clamp(10px,3vw,40px);white-space:nowrap;}
+#desktop{position:absolute;inset:0;bottom:48px;top:0;padding:16px;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:4px;}
+.icon{width:76px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:7px;border-radius:12px;transition:background .2s;}
+.icon:hover,.icon:active{background:rgba(255,255,255,0.13);}
+.ibox{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);}
+.icon span{font-size:10px;color:#fff;text-align:center;text-shadow:0 1px 4px #000;line-height:1.3;}
+
+/* ===== TASKBAR ===== */
+#taskbar{position:absolute;bottom:0;left:0;right:0;height:48px;background:rgba(8,14,28,0.96);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 8px;gap:5px;z-index:1000;}
+#startbtn{width:38px;height:38px;background:#0d6efd;border-radius:8px;border:none;cursor:pointer;font-size:20px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#startbtn:active{background:#0b5ed7;}
+#tbapps{display:flex;gap:3px;flex:1;overflow:hidden;}
+.tbapp{padding:3px 8px;background:rgba(255,255,255,0.07);border-radius:6px;color:#bbb;font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.09);white-space:nowrap;display:flex;align-items:center;gap:6px;}
 .tbapp.active{background:rgba(13,110,253,0.3);border-color:rgba(13,110,253,0.6);color:#fff;}
-#tbright{display:flex;align-items:center;gap:10px;padding:0 8px;border-left:1px solid rgba(255,255,255,0.08);}
-#clock{color:#bbb;font-size:12px;text-align:center;line-height:1.4;cursor:default;}
+.tb-close{color:#888;font-size:10px;line-height:1;padding:1px 3px;border-radius:3px;transition:all .15s;}
+.tb-close:hover{background:#ff5f57;color:#fff;}
+#tbright{display:flex;align-items:center;gap:7px;padding:0 6px;border-left:1px solid rgba(255,255,255,0.08);}
+#clock{color:#bbb;font-size:10px;text-align:center;line-height:1.5;}
+#ubadge{color:#0d6efd;font-size:10px;font-weight:600;padding:2px 7px;background:rgba(13,110,253,0.15);border-radius:6px;cursor:pointer;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis;}
 
-/* Start Menu */
-#startmenu{position:absolute;bottom:52px;left:10px;width:290px;background:rgba(10,16,30,0.98);border-radius:14px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 24px 70px rgba(0,0,0,0.85);padding:14px;z-index:2000;display:none;animation:smIn 0.15s ease;}
-@keyframes smIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-#startmenu.open{display:block;}
-.smtitle{color:#555;font-size:11px;margin-bottom:8px;padding:0 6px;text-transform:uppercase;letter-spacing:1px;}
-.smitem{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;color:#ccc;font-size:13px;transition:background 0.15s;}
-.smitem:hover{background:rgba(13,110,253,0.22);color:#fff;}
-.smitem .si{font-size:22px;width:30px;text-align:center;}
-.smdiv{border-top:1px solid rgba(255,255,255,0.07);margin:8px 0;}
+/* ===== START MENU ===== */
+#startmenu{position:absolute;bottom:52px;left:8px;width:270px;background:rgba(10,16,30,0.98);border-radius:14px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 24px 70px rgba(0,0,0,0.85);padding:12px;z-index:2000;display:none;}
+#startmenu.open{display:block;animation:smIn .15s ease;}
+@keyframes smIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.smtitle{color:#444;font-size:10px;margin-bottom:5px;padding:0 4px;text-transform:uppercase;letter-spacing:1px;}
+.smitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;color:#ccc;font-size:13px;transition:background .15s;}
+.smitem:hover,.smitem:active{background:rgba(13,110,253,0.22);color:#fff;}
+.smitem .si{font-size:18px;width:24px;text-align:center;}
+.smdiv{border-top:1px solid rgba(255,255,255,0.07);margin:5px 0;}
 
-/* Right Click Menu */
-#ctxmenu{position:fixed;background:rgba(12,20,36,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:10px;box-shadow:0 16px 50px rgba(0,0,0,0.8);padding:6px;z-index:9999;display:none;min-width:200px;animation:ctxIn 0.1s ease;}
-@keyframes ctxIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
-.ctx-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:7px;cursor:pointer;color:#ccc;font-size:13px;transition:background 0.12s;}
-.ctx-item:hover{background:rgba(13,110,253,0.25);color:#fff;}
-.ctx-item .ci{font-size:16px;width:20px;text-align:center;}
-.ctx-div{border-top:1px solid rgba(255,255,255,0.07);margin:4px 0;}
+/* ===== RIGHT CLICK ===== */
+#ctxmenu{position:fixed;background:rgba(12,20,36,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:10px;box-shadow:0 16px 50px rgba(0,0,0,0.8);padding:5px;z-index:9999;display:none;min-width:185px;animation:ctxIn .1s ease;}
+@keyframes ctxIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.ctx-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;cursor:pointer;color:#ccc;font-size:13px;transition:background .12s;}
+.ctx-item:hover,.ctx-item:active{background:rgba(13,110,253,0.25);color:#fff;}
 .ctx-item.danger{color:#ff5f57;}
 .ctx-item.danger:hover{background:rgba(255,95,87,0.15);}
+.ctx-div{border-top:1px solid rgba(255,255,255,0.07);margin:3px 0;}
 
-/* Windows */
-.win{position:absolute;background:#18243a;border-radius:12px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 28px 80px rgba(0,0,0,0.75);display:flex;flex-direction:column;overflow:hidden;min-width:280px;animation:winIn 0.15s ease;}
-@keyframes winIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
-.winbar{height:38px;background:#0f1b2d;display:flex;align-items:center;padding:0 12px;gap:8px;cursor:move;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);}
-.wintitle{flex:1;color:#ccc;font-size:13px;font-weight:600;}
-.winctrls{display:flex;gap:7px;}
-.wbtn{width:14px;height:14px;border-radius:50%;border:none;cursor:pointer;transition:opacity 0.15s;}
-.wbtn:hover{opacity:0.8;}
-.wbtn.cl{background:#ff5f57;}
-.wbtn.mn{background:#febc2e;}
-.wbtn.mx{background:#28c840;}
+/* ===== WINDOWS ===== */
+.win{position:absolute;background:#18243a;border-radius:12px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 28px 80px rgba(0,0,0,0.75);display:flex;flex-direction:column;overflow:hidden;min-width:260px;animation:winIn .15s ease;}
+@keyframes winIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.winbar{height:36px;background:#0f1b2d;display:flex;align-items:center;padding:0 10px;gap:8px;cursor:move;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.wintitle{flex:1;color:#ccc;font-size:12px;font-weight:600;}
+.winctrls{display:flex;gap:6px;}
+.wbtn{width:13px;height:13px;border-radius:50%;border:none;cursor:pointer;}
+.wbtn.cl{background:#ff5f57;}.wbtn.mn{background:#febc2e;}.wbtn.mx{background:#28c840;}
 .wincontent{flex:1;overflow:auto;}
 
-/* Notepad */
-.np-textarea{width:100%;height:100%;padding:14px;font-family:'Courier New',monospace;font-size:13px;color:#222;border:none;outline:none;resize:none;background:#fafafa;}
+/* ===== CALC ===== */
+#calcwrap{padding:14px;background:#111e30;}
+#cdisp{background:#090f1c;color:#4db3ff;font-size:28px;font-weight:700;text-align:right;padding:12px 14px;border-radius:10px;margin-bottom:12px;min-height:56px;word-break:break-all;font-family:'Courier New',monospace;}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.cbtn{padding:13px;border-radius:9px;border:none;cursor:pointer;font-size:16px;font-weight:600;transition:transform .1s;}
+.cbtn:active{transform:scale(.92);}
+.cbtn.n{background:#1c2e45;color:#ddd;}.cbtn.o{background:#0a3d8a;color:#fff;}.cbtn.e{background:#0d6efd;color:#fff;}.cbtn.f{background:#0e1c2e;color:#888;}
 
-/* Explorer */
-.expbar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:#0c1828;border-bottom:1px solid rgba(255,255,255,0.07);}
-.expgrid{display:flex;flex-wrap:wrap;gap:12px;padding:14px;}
-.expitem{width:74px;text-align:center;cursor:pointer;padding:8px 4px;border-radius:10px;transition:background 0.15s;}
-.expitem:hover{background:rgba(13,110,253,0.18);}
-.expitem .ei{font-size:34px;}
-.expitem .en{font-size:11px;color:#aaa;margin-top:4px;word-break:break-word;line-height:1.3;}
-
-/* Calculator */
-#calcwrap{padding:16px;background:#111e30;}
-#cdisp{background:#090f1c;color:#4db3ff;font-size:32px;font-weight:700;text-align:right;padding:14px 18px;border-radius:10px;margin-bottom:14px;min-height:62px;word-break:break-all;letter-spacing:2px;font-family:'Courier New',monospace;}
-.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.cbtn{padding:15px;border-radius:10px;border:none;cursor:pointer;font-size:17px;font-weight:600;transition:transform 0.1s,opacity 0.1s;}
-.cbtn:active{transform:scale(0.92);}
-.cbtn.n{background:#1c2e45;color:#ddd;}.cbtn.n:hover{background:#233550;}
-.cbtn.o{background:#0a3d8a;color:#fff;}.cbtn.o:hover{background:#0b48a8;}
-.cbtn.e{background:#0d6efd;color:#fff;}.cbtn.e:hover{background:#0b5ed7;}
-.cbtn.f{background:#0e1c2e;color:#888;}.cbtn.f:hover{background:#162436;}
-
-/* Terminal */
+/* ===== TERMINAL ===== */
 #term{display:flex;flex-direction:column;height:100%;}
-#termout{flex:1;background:#07101c;color:#3ddc84;font-family:'Courier New',monospace;font-size:13px;padding:12px;overflow-y:auto;min-height:0;line-height:1.6;}
-#terminput{display:flex;align-items:center;gap:8px;background:#080f1a;padding:9px 14px;border-top:1px solid rgba(13,110,253,0.25);flex-shrink:0;}
-#tprompt{color:#0d6efd;font-family:'Courier New',monospace;font-size:13px;white-space:nowrap;font-weight:700;}
-#tinput{flex:1;background:transparent;border:none;outline:none;color:#3ddc84;font-family:'Courier New',monospace;font-size:13px;caret-color:#3ddc84;}
-.tline{margin:1px 0;}
+#termout{flex:1;background:#07101c;color:#3ddc84;font-family:'Courier New',monospace;font-size:13px;padding:10px;overflow-y:auto;line-height:1.6;}
+#terminput{display:flex;align-items:center;gap:6px;background:#080f1a;padding:8px 12px;border-top:1px solid rgba(13,110,253,0.2);flex-shrink:0;}
+#tprompt{color:#0d6efd;font-family:monospace;font-size:13px;white-space:nowrap;font-weight:700;}
+#tinput{flex:1;background:transparent;border:none;outline:none;color:#3ddc84;font-family:monospace;font-size:13px;caret-color:#3ddc84;}
 
-/* Settings */
+/* ===== SETTINGS ===== */
 .settings-wrap{display:flex;height:100%;}
-.settings-nav{width:160px;background:#0c1828;border-right:1px solid rgba(255,255,255,0.07);padding:12px 8px;flex-shrink:0;}
-.sn-item{padding:10px 12px;border-radius:8px;cursor:pointer;color:#aaa;font-size:13px;transition:background 0.15s;margin-bottom:2px;}
-.sn-item:hover{background:rgba(255,255,255,0.07);color:#fff;}
-.sn-item.active{background:rgba(13,110,253,0.25);color:#fff;}
-.settings-content{flex:1;padding:20px;overflow-y:auto;}
-.s-section{margin-bottom:24px;}
-.s-title{color:#0d6efd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
-.s-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:#ccc;font-size:13px;}
-.s-val{color:#0d6efd;font-size:13px;}
-.toggle{width:40px;height:22px;background:#1e3045;border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;border:none;}
+.settings-nav{width:140px;background:#0c1828;border-right:1px solid rgba(255,255,255,0.07);padding:8px 5px;flex-shrink:0;}
+.sn-item{padding:9px 10px;border-radius:8px;cursor:pointer;color:#777;font-size:12px;transition:background .15s;margin-bottom:2px;}
+.sn-item:hover,.sn-item.active{background:rgba(13,110,253,0.25);color:#fff;}
+.settings-content{flex:1;padding:14px;overflow-y:auto;}
+.s-section{margin-bottom:18px;}
+.s-title{color:#0d6efd;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.s-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:#ccc;font-size:12px;}
+.s-val{color:#0d6efd;font-size:11px;}
+.toggle{width:36px;height:20px;background:#1e3045;border-radius:10px;cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0;}
 .toggle.on{background:#0d6efd;}
-.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left 0.2s;}
-.toggle.on::after{left:21px;}
-.s-info{background:#0c1828;border-radius:10px;padding:14px;margin-top:8px;}
-.si-row2{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;}
-.sik2{color:#666;}.siv2{color:#0d6efd;font-weight:600;}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
+.toggle.on::after{left:19px;}
+.s-info{background:#0c1828;border-radius:10px;padding:12px;}
+.si-row2{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;}
+.sik2{color:#555;}.siv2{color:#0d6efd;font-weight:600;}
+.logout-btn{width:100%;background:#ff5f5720;border:1px solid #ff5f5740;border-radius:8px;color:#ff5f57;padding:9px;cursor:pointer;font-size:13px;margin-top:10px;}
 
-/* TilStore */
+/* ===== STORE ===== */
 .store-wrap{display:flex;flex-direction:column;height:100%;}
-.store-header{background:#0c1828;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.07);}
-.store-search{width:100%;background:#0a1520;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;color:#ccc;font-size:13px;outline:none;}
-.store-search::placeholder{color:#444;}
-.store-body{flex:1;overflow-y:auto;padding:16px;}
-.store-section{margin-bottom:20px;}
-.store-stitle{color:#0d6efd;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
-.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-.store-card{background:#0c1828;border-radius:12px;border:1px solid rgba(255,255,255,0.07);padding:14px;cursor:pointer;transition:all 0.2s;text-align:center;}
-.store-card:hover{border-color:#0d6efd;background:#0e1f38;}
-.store-card .sc-icon{font-size:36px;margin-bottom:8px;}
-.store-card .sc-name{color:#ddd;font-size:13px;font-weight:600;margin-bottom:4px;}
-.store-card .sc-cat{color:#555;font-size:11px;margin-bottom:10px;}
-.store-card .sc-btn{background:#0d6efd;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;width:100%;transition:background 0.2s;}
-.store-card .sc-btn:hover{background:#0b5ed7;}
-.store-card .sc-btn.installed{background:#28c840;}
-.store-card .sc-btn.installed:hover{background:#22a835;}
+.store-header{background:#0c1828;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.store-search{width:100%;background:#0a1520;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;color:#ccc;font-size:13px;outline:none;}
+.store-body{flex:1;overflow-y:auto;padding:10px;}
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin-top:9px;}
+.store-stitle{color:#0d6efd;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.store-card{background:#0c1828;border-radius:11px;border:1px solid rgba(255,255,255,0.07);padding:11px;text-align:center;transition:border-color .2s;cursor:pointer;}
+.store-card:hover{border-color:#0d6efd;}
+.sc-icon{font-size:30px;margin-bottom:5px;}
+.sc-name{color:#ddd;font-size:11px;font-weight:600;margin-bottom:2px;}
+.sc-cat{color:#444;font-size:10px;margin-bottom:7px;}
+.sc-btn{background:#0d6efd;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;width:100%;}
+.sc-btn.installed{background:#28c840;}
 
-/* TilMusic */
+/* ===== MUSIC ===== */
 .music-wrap{display:flex;flex-direction:column;height:100%;background:#080f1c;}
-.music-header{padding:16px;background:#0c1828;border-bottom:1px solid rgba(255,255,255,0.07);}
-.music-title{color:#fff;font-size:16px;font-weight:700;margin-bottom:4px;}
-.music-sub{color:#555;font-size:12px;}
-.music-body{flex:1;overflow-y:auto;padding:12px;}
-.music-section{margin-bottom:16px;}
-.music-stitle{color:#0d6efd;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.song-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background 0.15s;}
-.song-item:hover{background:rgba(255,255,255,0.06);}
+.music-body{flex:1;overflow-y:auto;padding:10px;}
+.music-stitle{color:#0d6efd;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.song-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:9px;cursor:pointer;transition:background .15s;}
+.song-item:hover,.song-item:active{background:rgba(255,255,255,0.05);}
 .song-item.playing{background:rgba(13,110,253,0.15);}
-.song-num{color:#444;font-size:12px;width:20px;text-align:center;}
-.song-icon{font-size:24px;}
-.song-info{flex:1;}
-.song-name{color:#ddd;font-size:13px;font-weight:500;}
-.song-artist{color:#555;font-size:11px;margin-top:2px;}
-.song-dur{color:#444;font-size:12px;}
-.music-player{background:#0c1828;border-top:1px solid rgba(255,255,255,0.08);padding:14px 16px;}
-.player-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.player-art{width:44px;height:44px;border-radius:8px;background:#1a2a3a;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.player-song{color:#ddd;font-size:13px;font-weight:600;}
-.player-artist{color:#555;font-size:11px;margin-top:2px;}
-.player-controls{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;}
-.pc-btn{background:none;border:none;cursor:pointer;font-size:22px;opacity:0.7;transition:opacity 0.2s;}
-.pc-btn:hover{opacity:1;}
-.pc-btn.play{font-size:32px;opacity:1;}
-.progress-wrap{display:flex;align-items:center;gap:8px;}
-.prog-time{color:#444;font-size:11px;width:35px;}
-.prog-bar{flex:1;height:4px;background:#1a2a3a;border-radius:2px;cursor:pointer;position:relative;}
-.prog-fill{height:100%;background:#0d6efd;border-radius:2px;transition:width 0.5s linear;}
-.prog-dot{width:10px;height:10px;background:#fff;border-radius:50%;position:absolute;top:-3px;right:-5px;}
-.upload-btn{background:rgba(13,110,253,0.15);border:1px dashed rgba(13,110,253,0.4);border-radius:10px;padding:14px;text-align:center;cursor:pointer;color:#0d6efd;font-size:13px;margin-bottom:12px;transition:background 0.2s;}
-.upload-btn:hover{background:rgba(13,110,253,0.25);}
+.song-name{color:#ddd;font-size:12px;font-weight:500;}
+.song-artist{color:#444;font-size:10px;}
+.upload-btn{background:rgba(13,110,253,0.1);border:1px dashed rgba(13,110,253,0.35);border-radius:9px;padding:11px;text-align:center;cursor:pointer;color:#0d6efd;font-size:12px;margin-bottom:9px;}
+.music-player{background:#0c1828;border-top:1px solid rgba(255,255,255,0.08);padding:11px 13px;}
+.player-controls{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px;}
+.pc-btn{background:none;border:none;cursor:pointer;font-size:20px;opacity:.7;}
+.pc-btn.play{font-size:28px;opacity:1;}
+.prog-bar{height:4px;background:#1a2a3a;border-radius:2px;cursor:pointer;margin:5px 0;}
+.prog-fill{height:100%;background:#0d6efd;border-radius:2px;}
+.prog-times{display:flex;justify-content:space-between;color:#333;font-size:10px;}
+
+/* ===== EXPLORER ===== */
+.expbar{display:flex;align-items:center;gap:8px;padding:6px 12px;background:#0c1828;border-bottom:1px solid rgba(255,255,255,0.07);}
+.expgrid{display:flex;flex-wrap:wrap;gap:10px;padding:12px;}
+.expitem{width:68px;text-align:center;cursor:pointer;padding:6px 4px;border-radius:9px;transition:background .15s;}
+.expitem:hover,.expitem:active{background:rgba(13,110,253,0.18);}
+.ei{font-size:28px;}.en{font-size:10px;color:#999;margin-top:3px;line-height:1.3;}
+
+/* ===== GAMES ===== */
+.games-wrap{padding:14px;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:10px;}
+.game-card{background:#0c1828;border-radius:12px;border:1px solid rgba(255,255,255,0.08);padding:14px;text-align:center;cursor:pointer;transition:all .2s;}
+.game-card:hover,.game-card:active{border-color:#0d6efd;background:#0e1f38;}
+.gc-icon{font-size:34px;margin-bottom:7px;}
+.gc-name{color:#ddd;font-size:12px;font-weight:600;}
+.gc-desc{color:#444;font-size:10px;margin-top:3px;}
+
+/* ===== GAME WRAPPERS ===== */
+.snake-wrap,.arrows-wrap,.tetris-wrap{display:flex;flex-direction:column;align-items:center;padding:10px;height:100%;}
+.game-score{font-size:14px;font-weight:700;margin-bottom:8px;}
+.game-hint{color:#444;font-size:11px;margin-top:6px;text-align:center;}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .win{min-width:unset!important;width:98vw!important;left:1vw!important;top:4px!important;}
+  .winbar{cursor:default;}
+  #tbapps{display:none;}
+  #desktop{padding:10px;gap:3px;}
+  .icon{width:68px;}
+  .ibox{width:44px;height:44px;font-size:22px;}
+  .icon span{font-size:9px;}
+  #startmenu{width:86vw;}
+  .settings-nav{width:110px;}
+  .sn-item{font-size:10px;padding:7px 6px;}
+  .store-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .games-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .auth-box{padding:22px 16px;}
+  #snake-canvas,#arrows-canvas,#tetris-canvas{max-width:100%;}
+}
+
+/* ===== ANDROID ===== */
+#android-root{background:radial-gradient(ellipse at center,#1a1a2e 0%,#000 100%);}
+#android-phone{width:min(380px,96vw);height:min(780px,94vh);background:#111;border-radius:40px;border:3px solid #333;box-shadow:0 0 60px rgba(0,0,0,0.8),inset 0 0 20px rgba(255,255,255,0.03);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+#and-status{height:28px;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px;color:#fff;flex-shrink:0;z-index:20;position:relative;}
+#and-screen{flex:1;position:relative;overflow:hidden;}
+#and-home{position:absolute;inset:0;display:flex;flex-direction:column;}
+#and-wallpaper{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);transition:background .5s;}
+#and-date-widget{position:relative;z-index:2;text-align:center;padding:30px 0 10px;color:#fff;}
+#and-date-widget .and-big-time{font-size:52px;font-weight:200;line-height:1;}
+#and-date-widget .and-big-date{font-size:14px;color:rgba(255,255,255,0.7);margin-top:4px;}
+#and-apps-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:16px 12px;flex:1;}
+.and-app-icon{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+.and-app-icon .and-icon-box{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 15px rgba(0,0,0,0.4);}
+.and-app-icon span{font-size:10px;color:rgba(255,255,255,0.9);text-align:center;text-shadow:0 1px 3px rgba(0,0,0,0.8);}
+#and-dock{position:relative;z-index:2;display:flex;justify-content:space-around;align-items:center;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);margin:0 12px 8px;border-radius:20px;padding:10px;border:1px solid rgba(255,255,255,0.15);}
+.and-dock-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(255,255,255,0.15);cursor:pointer;}
+.and-dock-icon:active{opacity:.7;}
+#and-nav{height:44px;background:#000;display:flex;align-items:center;justify-content:space-around;flex-shrink:0;border-top:1px solid #222;}
+.and-nav-btn{background:none;border:none;font-size:18px;cursor:pointer;opacity:.7;padding:8px;}
+.and-nav-btn:active{opacity:.4;}
+#and-app-bar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#1a1a2e;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.1);}
+#and-back-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;}
+#and-app-title{color:#fff;font-size:15px;font-weight:600;}
+#and-notif-panel{position:absolute;top:-100%;left:0;right:0;background:rgba(20,20,40,0.95);backdrop-filter:blur(20px);padding:16px;z-index:30;transition:top .3s ease;border-bottom-left-radius:20px;border-bottom-right-radius:20px;}
+#and-notif-panel.open{top:0;}
+.and-notif-item{background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;margin-bottom:8px;color:#fff;}
+.and-notif-item .nn-app{font-size:10px;color:#888;margin-bottom:3px;}
+.and-notif-item .nn-msg{font-size:13px;}
+/* Android app content styles */
+.and-content{padding:16px;background:#f5f5f5;min-height:100%;font-family:Roboto,sans-serif;}
+.and-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.and-card-title{font-size:13px;font-weight:600;color:#333;margin-bottom:8px;}
+.and-setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#333;}
+.and-toggle{width:42px;height:24px;background:#ddd;border-radius:12px;cursor:pointer;position:relative;border:none;transition:background .2s;}
+.and-toggle.on{background:#4CAF50;}
+.and-toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+.and-toggle.on::after{left:21px;}
+.and-input{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px 12px;font-size:13px;outline:none;margin-bottom:8px;}
+.and-input:focus{border-color:#1a73e8;}
+.and-btn{background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer;width:100%;}
+.and-btn:active{background:#1557b0;}
+
 </style>
 </head>
 <body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="al-icon" id="auth-icon">💻</div>
+      <div class="al-name">TilOS</div>
+    </div>
+    <div id="auth-content"></div>
+    <div class="auth-sub">مرحباً بك في <span>TilOS 1.0</span></div>
+  </div>
+</div>
+
+<!-- ===== DESKTOP ===== -->
 <div id="root">
   <div id="wallpaper"></div>
-  <div id="desktop">
-    <div class="icon" ondblclick="openApp('calc')"><div class="ibox">🧮</div><span>حاسبة</span></div>
-    <div class="icon" ondblclick="openApp('notepad')"><div class="ibox">📝</div><span>المفكرة</span></div>
-    <div class="icon" ondblclick="openApp('explorer')"><div class="ibox">📁</div><span>الملفات</span></div>
-    <div class="icon" ondblclick="openApp('terminal')"><div class="ibox">🖥️</div><span>Terminal</span></div>
-    <div class="icon" ondblclick="openApp('settings')"><div class="ibox">⚙️</div><span>الإعدادات</span></div>
-    <div class="icon" ondblclick="openApp('store')"><div class="ibox">🏪</div><span>TilStore</span></div>
-    <div class="icon" ondblclick="openApp('music')"><div class="ibox">🎵</div><span>TilMusic</span></div>
-  </div>
+  <div id="desktop"></div>
 
   <!-- Right Click Menu -->
   <div id="ctxmenu">
-    <div class="ctx-item" onclick="ctxAction('refresh')"><span class="ci">🔄</span>تحديث سطح المكتب</div>
-    <div class="ctx-item" onclick="ctxAction('wallpaper')"><span class="ci">🖼️</span>تغيير الخلفية</div>
+    <div class="ctx-item" onclick="ctxDo('refresh')">🔄 تحديث سطح المكتب</div>
+    <div class="ctx-item" onclick="ctxDo('wallpaper')">🖼️ تغيير الخلفية</div>
     <div class="ctx-div"></div>
-    <div class="ctx-item" onclick="ctxAction('newfile')"><span class="ci">📄</span>ملف نصي جديد</div>
-    <div class="ctx-item" onclick="ctxAction('newfolder')"><span class="ci">📁</span>مجلد جديد</div>
+    <div class="ctx-item" onclick="ctxDo('settings')">⚙️ الإعدادات</div>
+    <div class="ctx-item" onclick="ctxDo('store')">🏪 TilStore</div>
     <div class="ctx-div"></div>
-    <div class="ctx-item" onclick="ctxAction('settings')"><span class="ci">⚙️</span>إعدادات العرض</div>
-    <div class="ctx-item" onclick="ctxAction('store')"><span class="ci">🏪</span>فتح TilStore</div>
-    <div class="ctx-div"></div>
-    <div class="ctx-item danger" onclick="ctxAction('shutdown')"><span class="ci">🔴</span>إيقاف التشغيل</div>
+    <div class="ctx-item danger" onclick="ctxDo('shutdown')">🔴 إيقاف التشغيل</div>
   </div>
 
   <!-- Start Menu -->
@@ -196,115 +269,434 @@ body,html{width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Tahoma,san
     <div class="smtitle">التطبيقات</div>
     <div class="smitem" onclick="openApp('calc');closeStart()"><span class="si">🧮</span>الحاسبة</div>
     <div class="smitem" onclick="openApp('notepad');closeStart()"><span class="si">📝</span>المفكرة</div>
-    <div class="smitem" onclick="openApp('explorer');closeStart()"><span class="si">📁</span>مستكشف الملفات</div>
+    <div class="smitem" onclick="openApp('explorer');closeStart()"><span class="si">📁</span>الملفات</div>
     <div class="smitem" onclick="openApp('terminal');closeStart()"><span class="si">🖥️</span>Terminal</div>
     <div class="smitem" onclick="openApp('settings');closeStart()"><span class="si">⚙️</span>الإعدادات</div>
     <div class="smitem" onclick="openApp('store');closeStart()"><span class="si">🏪</span>TilStore</div>
     <div class="smitem" onclick="openApp('music');closeStart()"><span class="si">🎵</span>TilMusic</div>
+    <div class="smitem" onclick="openApp('games');closeStart()"><span class="si">🎮</span>الألعاب</div>
     <div class="smdiv"></div>
+    <div class="smitem" style="color:#ff5f57" onclick="doLogout()"><span class="si">🚪</span>تسجيل الخروج</div>
     <div class="smitem" style="color:#ff5f57" onclick="shutdown()"><span class="si">🔴</span>إيقاف التشغيل</div>
   </div>
 
+  <!-- Taskbar -->
   <div id="taskbar">
     <button id="startbtn" onclick="toggleStart()">⊞</button>
     <div id="tbapps"></div>
     <div id="tbright">
-      <span style="font-size:18px;cursor:pointer" title="الصوت">🔊</span>
-      <span style="font-size:18px;cursor:pointer" title="الشبكة">📶</span>
+      <div id="ubadge" onclick="openApp('settings')">👤</div>
+      <span style="font-size:15px">🔊</span>
+      <span style="font-size:15px">📶</span>
       <div id="clock"></div>
     </div>
   </div>
 </div>
 
-<input type="file" id="music-file-input" accept="audio/*" style="display:none" multiple>
+
+<!-- ===== ANDROID ROOT ===== -->
+<div id="android-root" style="display:none;position:fixed;inset:0;background:#000;align-items:center;justify-content:center;z-index:500;">
+  <!-- Phone frame -->
+  <div id="android-phone">
+    <!-- Status bar -->
+    <div id="and-status">
+      <span id="and-time">00:00</span>
+      <span style="display:flex;gap:4px;align-items:center">
+        <span>📶</span><span>🔋</span>
+      </span>
+    </div>
+    <!-- Screen -->
+    <div id="and-screen">
+      <!-- HOME screen -->
+      <div id="and-home">
+        <div id="and-wallpaper"></div>
+        <div id="and-date-widget"></div>
+        <div id="and-apps-grid"></div>
+        <!-- Dock -->
+        <div id="and-dock">
+          <div class="and-dock-icon" onclick="andOpenApp('phone')">📞</div>
+          <div class="and-dock-icon" onclick="andOpenApp('messages')">💬</div>
+          <div class="and-dock-icon" onclick="andOpenApp('camera')">📷</div>
+          <div class="and-dock-icon" onclick="andOpenApp('browser')">🌐</div>
+        </div>
+      </div>
+      <!-- APP screen (fullscreen inside phone) -->
+      <div id="and-app-screen" style="display:none;position:absolute;inset:0;background:#fff;flex-direction:column;z-index:10;">
+        <div id="and-app-bar">
+          <button id="and-back-btn" onclick="andGoHome()">←</button>
+          <span id="and-app-title">App</span>
+          <span></span>
+        </div>
+        <div id="and-app-content" style="flex:1;overflow-y:auto;"></div>
+      </div>
+      <!-- NOTIFICATIONS panel -->
+      <div id="and-notif-panel">
+        <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:10px">الإشعارات</div>
+        <div id="and-notif-list"></div>
+        <button onclick="andCloseNotif()" style="width:100%;background:rgba(255,255,255,0.1);border:none;border-radius:8px;color:#fff;padding:8px;margin-top:10px;cursor:pointer">مسح الكل</button>
+      </div>
+    </div>
+    <!-- Nav bar -->
+    <div id="and-nav">
+      <button class="and-nav-btn" onclick="andGoHome()">⬛</button>
+      <button class="and-nav-btn" onclick="andGoHome()">⚫</button>
+      <button class="and-nav-btn" onclick="andRecents()">◻️</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="music-file-input" accept="audio/*" multiple style="display:none">
 
 <script>
-const openedApps={};let zt=50;
+// ===================== DB =====================
+let DB = JSON.parse(localStorage.getItem('tilos_db')||'{"users":{},"currentUser":null}');
+function saveDB(){ localStorage.setItem('tilos_db', JSON.stringify(DB)); }
+
+// ===================== AUTH =====================
+let regData = {};
+let fakeOTP = '';
+
+function renderAuth(view) {
+  const c = document.getElementById('auth-content');
+  if(view === 'login') {
+    c.innerHTML = `
+      <div class="auth-tabs">
+        <div class="auth-tab active">دخول</div>
+        <div class="auth-tab" onclick="renderAuth('register')">حساب جديد</div>
+      </div>
+      <input class="auth-input" id="l-user" placeholder="اسم المستخدم" autocomplete="off"/>
+      <input class="auth-input" id="l-pass" type="password" placeholder="كلمة المرور"/>
+      <button class="auth-btn" onclick="doLogin()">دخول</button>
+      <div class="auth-err" id="auth-err"></div>
+      <div class="auth-link" onclick="renderAuth('forgot')">نسيت كلمة المرور؟</div>`;
+  }
+  else if(view === 'reg1') {
+    document.getElementById('auth-icon').textContent = '💻';
+    c.innerHTML = `
+      <div class="auth-tabs">
+        <div class="auth-tab" onclick="renderAuth('login')">دخول</div>
+        <div class="auth-tab active">حساب جديد</div>
+      </div>
+      <div style="color:#888;font-size:11px;text-align:center;margin-bottom:12px">الخطوة 1 من 3 — اختر نوع الجهاز</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <div class="device-card" id="dev-pc" onclick="pickDev('pc')">
+          <div style="font-size:32px">💻</div>
+          <div style="color:#ddd;font-size:12px;margin-top:6px;font-weight:600">PC</div>
+          <div style="color:#444;font-size:10px">كمبيوتر</div>
+        </div>
+        <div class="device-card" id="dev-mobile" onclick="pickDev('mobile')">
+          <div style="font-size:32px">📱</div>
+          <div style="color:#ddd;font-size:12px;margin-top:6px;font-weight:600">Mobile</div>
+          <div style="color:#444;font-size:10px">موبايل</div>
+        </div>
+      </div>
+      <button class="auth-btn" onclick="goReg2()">التالي ←</button>
+      <div class="auth-err" id="auth-err"></div>`;
+    if(regData.device) pickDev(regData.device);
+  }
+  else if(view === 'reg2') {
+    c.innerHTML = `
+      <div class="auth-tabs">
+        <div class="auth-tab" onclick="renderAuth('login')">دخول</div>
+        <div class="auth-tab active">حساب جديد</div>
+      </div>
+      <div style="color:#888;font-size:11px;text-align:center;margin-bottom:12px">الخطوة 2 من 3 — بياناتك</div>
+      <input class="auth-input" id="r-name" placeholder="اسمك الكامل" value="${regData.name||''}"/>
+      <input class="auth-input" id="r-user" placeholder="اسم المستخدم" autocomplete="off" value="${regData.user||''}"/>
+      <input class="auth-input" id="r-email" type="email" placeholder="البريد الإلكتروني" value="${regData.email||''}"/>
+      <input class="auth-input" id="r-pass" type="password" placeholder="كلمة المرور"/>
+      <div style="display:flex;gap:8px">
+        <button class="auth-btn" style="background:#1a2a3a;flex:1" onclick="renderAuth('reg1')">← رجوع</button>
+        <button class="auth-btn" style="flex:2" onclick="goReg3()">التالي ←</button>
+      </div>
+      <div class="auth-err" id="auth-err"></div>`;
+  }
+  else if(view === 'reg3') {
+    c.innerHTML = `
+      <div class="auth-tabs">
+        <div class="auth-tab" onclick="renderAuth('login')">دخول</div>
+        <div class="auth-tab active">حساب جديد</div>
+      </div>
+      <div style="color:#888;font-size:11px;text-align:center;margin-bottom:12px">الخطوة 3 من 3 — طريقة الاسترداد</div>
+      <div class="recovery-card ${regData.recovery==='q'?'selected':''}" onclick="pickRec('q')">
+        <span style="font-size:20px">🔐</span>
+        <div><div style="color:#ddd;font-size:13px;font-weight:600">سؤال أمني</div><div style="color:#555;font-size:10px">سؤال وجواب سري</div></div>
+      </div>
+
+      <div class="recovery-card ${regData.recovery==='pin'?'selected':''}" onclick="pickRec('pin')">
+        <span style="font-size:20px">🔢</span>
+        <div><div style="color:#ddd;font-size:13px;font-weight:600">PIN احتياطي</div><div style="color:#555;font-size:10px">رقم سري تختاره</div></div>
+      </div>
+      <div id="rec-extra" style="margin-top:10px">${getRecExtra()}</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="auth-btn" style="background:#1a2a3a;flex:1" onclick="renderAuth('reg2')">← رجوع</button>
+        <button class="auth-btn" style="flex:2" onclick="doRegister()">إنشاء الحساب ✓</button>
+      </div>
+      <div class="auth-err" id="auth-err"></div>`;
+  }
+  else if(view === 'register') { regData={}; renderAuth('reg1'); return; }
+  else if(view === 'forgot') {
+    c.innerHTML = `
+      <div style="color:#0d6efd;font-size:14px;font-weight:700;margin-bottom:14px;text-align:center">🔐 استعادة الحساب</div>
+      <input class="auth-input" id="f-user" placeholder="اسم المستخدم"/>
+      <button class="auth-btn" onclick="doForgot1()">التالي ←</button>
+      <div class="auth-err" id="auth-err"></div>
+      <div class="auth-link" onclick="renderAuth('login')">← رجوع لتسجيل الدخول</div>`;
+  }
+}
+
+function getRecExtra() {
+  if(regData.recovery==='q') return `
+    <select class="auth-input" id="r-q" style="cursor:pointer" onchange="regData.q=this.value">
+      <option value="">-- اختر سؤالاً أمنياً --</option>
+      <option value="pet" ${regData.q==='pet'?'selected':''}>ما اسم حيوانك الأليف الأول؟</option>
+      <option value="city" ${regData.q==='city'?'selected':''}>في أي مدينة وُلدت؟</option>
+      <option value="school" ${regData.q==='school'?'selected':''}>ما اسم مدرستك الابتدائية؟</option>
+      <option value="mother" ${regData.q==='mother'?'selected':''}>ما اسم والدتك قبل الزواج؟</option>
+    </select>
+    <input class="auth-input" id="r-qa" placeholder="إجابة السؤال" value="${regData.qa||''}" oninput="regData.qa=this.value"/>`;
+  if(regData.recovery==='pin') return `<input class="auth-input" id="r-pin" type="number" placeholder="PIN من 4 أرقام على الأقل" value="${regData.pin||''}" oninput="regData.pin=this.value"/>`;
+
+  return '';
+}
+
+function pickDev(d) {
+  regData.device = d;
+  document.getElementById('auth-icon').textContent = d==='mobile'?'📱':'💻';
+  ['pc','mobile'].forEach(x=>{ const el=document.getElementById('dev-'+x); if(el) el.classList.toggle('selected',x===d); });
+}
+function pickRec(r) {
+  regData.recovery = r;
+  document.getElementById('rec-extra').innerHTML = getRecExtra();
+  document.querySelectorAll('.recovery-card').forEach((el,i)=>el.classList.toggle('selected',['q','code','pin'][i]===r));
+}
+function goReg2() {
+  if(!regData.device){ document.getElementById('auth-err').textContent='اختر نوع الجهاز أولاً'; return; }
+  renderAuth('reg2');
+}
+function goReg3() {
+  const name=document.getElementById('r-name').value.trim();
+  const user=document.getElementById('r-user').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const err=document.getElementById('auth-err');
+  if(!name||!user||!email||!pass){ err.textContent='ملء جميع الحقول مطلوب'; return; }
+  if(DB.users[user]){ err.textContent='اسم المستخدم موجود بالفعل'; return; }
+  if(!email.includes('@')){ err.textContent='بريد إلكتروني غير صحيح'; return; }
+  regData.name=name; regData.user=user; regData.email=email; regData.pass=pass;
+  renderAuth('reg3');
+}
+function doRegister() {
+  const err=document.getElementById('auth-err');
+  if(!regData.recovery){ err.textContent='اختر طريقة الاسترداد'; return; }
+  let recovery={method:regData.recovery};
+  if(regData.recovery==='q'){
+    const q=regData.q||(document.getElementById('r-q')?document.getElementById('r-q').value:'');
+    const qa=regData.qa||(document.getElementById('r-qa')?document.getElementById('r-qa').value.trim():'');
+    if(!q||!qa){ err.textContent='ملء السؤال والإجابة مطلوب'; return; }
+    recovery.q=q; recovery.qa=qa;
+  } else if(regData.recovery==='pin'){
+    const pin=regData.pin||(document.getElementById('r-pin')?document.getElementById('r-pin').value:'');
+    if(!pin||pin.length<4){ err.textContent='الـ PIN يجب أن يكون 4 أرقام على الأقل'; return; }
+    recovery.pin=pin;
+  }
+  DB.users[regData.user]={pass:regData.pass,name:regData.name,email:regData.email,device:regData.device,recovery,notepad:'',wallIdx:0};
+  DB.currentUser=regData.user; saveDB(); regData={};
+  enterDesktop();
+}
+function doLogin() {
+  const user=document.getElementById('l-user').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  const err=document.getElementById('auth-err');
+  if(!user||!pass){ err.textContent='ملء جميع الحقول مطلوب'; return; }
+  const u=DB.users[user];
+  if(!u||u.pass!==pass){ err.textContent='اسم المستخدم أو كلمة المرور خطأ'; return; }
+  DB.currentUser=user; saveDB(); enterDesktop();
+}
+
+// Forgot
+function doForgot1() {
+  const user=document.getElementById('f-user').value.trim();
+  const err=document.getElementById('auth-err');
+  const u=DB.users[user];
+  if(!u){ err.textContent='اسم المستخدم غير موجود'; return; }
+  const r=u.recovery||{method:'q'};
+  const c=document.getElementById('auth-content');
+  const qMap={pet:'ما اسم حيوانك الأليف الأول؟',city:'في أي مدينة وُلدت؟',school:'ما اسم مدرستك الابتدائية؟',mother:'ما اسم والدتك قبل الزواج؟'};
+  let extra='';
+  if(r.method==='q') extra=`
+    <div style="color:#888;font-size:12px;text-align:center;margin-bottom:8px">${qMap[r.q]||'السؤال الأمني'}</div>
+    <input class="auth-input" id="f-ans" placeholder="إجابة السؤال"/>
+    <input class="auth-input" id="f-np" type="password" placeholder="كلمة المرور الجديدة"/>
+    <button class="auth-btn" onclick="doForgotConfirm('${user}','q')">تأكيد</button>`;
+  else if(r.method==='pin') extra=`
+    <input class="auth-input" id="f-ans" type="number" placeholder="أدخل الـ PIN الاحتياطي"/>
+    <input class="auth-input" id="f-np" type="password" placeholder="كلمة المرور الجديدة"/>
+    <button class="auth-btn" onclick="doForgotConfirm('${user}','pin')">تأكيد</button>`;
+  c.innerHTML=`
+    <div style="color:#0d6efd;font-size:14px;font-weight:700;margin-bottom:12px;text-align:center">🔐 استعادة — ${u.name}</div>
+    ${extra}
+    <div class="auth-err" id="auth-err"></div>
+    <div class="auth-link" onclick="renderAuth('forgot')">← رجوع</div>`;
+}
+function doForgotConfirm(user,method) {
+  const ans=document.getElementById('f-ans').value.trim();
+  const np=document.getElementById('f-np').value;
+  const err=document.getElementById('auth-err');
+  const u=DB.users[user];
+  if(!np||np.length<3){ err.textContent='كلمة المرور قصيرة جداً'; return; }
+  let ok=false;
+  if(method==='q') ok=ans.toLowerCase()===u.recovery.qa.toLowerCase();
+
+  else if(method==='pin') ok=ans===u.recovery.pin;
+  if(!ok){ err.textContent='البيانات غير صحيحة'; return; }
+  u.pass=np; saveDB();
+  document.getElementById('auth-content').innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:40px">✅</div><div style="color:#28c840;font-size:15px;font-weight:700;margin-top:10px">تم تغيير كلمة المرور!</div></div>`;
+  setTimeout(()=>renderAuth('login'),2000);
+}
+
+// Init auth
+renderAuth('login');
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const btn=document.querySelector('#auth-content .auth-btn'); if(btn)btn.click(); } });
+
+
+// ===================== DESKTOP =====================
 const wallpapers=[
-  'linear-gradient(160deg,#0a1628 0%,#0d2a52 50%,#0a3d7a 100%)',
-  'linear-gradient(160deg,#1a0a28 0%,#2d0d52 50%,#3d0a7a 100%)',
-  'linear-gradient(160deg,#0a1e10 0%,#0d3d1a 50%,#0a5a20 100%)',
-  'linear-gradient(160deg,#1e0a0a 0%,#3d0d0d 50%,#5a0a0a 100%)',
-  'linear-gradient(160deg,#1a1a0a 0%,#3d3d0d 50%,#5a5a0a 100%)',
+  'linear-gradient(160deg,#0a1628,#0d2a52,#0a3d7a)',
+  'linear-gradient(160deg,#1a0828,#2d0d52,#4a0a8a)',
+  'linear-gradient(160deg,#0a1e10,#0d3d1a,#0a5a20)',
+  'linear-gradient(160deg,#1e0a0a,#3d0d0d,#600a0a)',
+  'linear-gradient(160deg,#1a1200,#3d2d00,#5a4400)',
+  'linear-gradient(160deg,#001a2e,#003d5a,#005a80)',
 ];
 let wallIdx=0;
+const openedApps={};
+let zt=50;
 
 function updateClock(){
   const n=new Date();
-  const h=String(n.getHours()).padStart(2,'0');
-  const m=String(n.getMinutes()).padStart(2,'0');
+  const h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');
   const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-  document.getElementById('clock').innerHTML=h+':'+m+'<br><span style="font-size:10px;color:#555">'+days[n.getDay()]+'</span>';
+  document.getElementById('clock').innerHTML=h+':'+m+'<br><span style="font-size:9px;color:#444">'+days[n.getDay()]+'</span>';
 }
-updateClock();setInterval(updateClock,1000);
+setInterval(updateClock,1000);
 
-// Right Click
-document.getElementById('root').addEventListener('contextmenu',e=>{
-  e.preventDefault();
-  const menu=document.getElementById('ctxmenu');
-  menu.style.display='block';
-  let x=e.clientX,y=e.clientY;
-  if(x+210>window.innerWidth)x=window.innerWidth-215;
-  if(y+280>window.innerHeight)y=window.innerHeight-285;
-  menu.style.left=x+'px';menu.style.top=y+'px';
-});
-document.addEventListener('mousedown',e=>{
-  if(!document.getElementById('ctxmenu').contains(e.target))
-    document.getElementById('ctxmenu').style.display='none';
-});
-
-function ctxAction(a){
-  document.getElementById('ctxmenu').style.display='none';
-  if(a==='refresh'){document.getElementById('root').style.opacity='0.7';setTimeout(()=>document.getElementById('root').style.opacity='1',300);}
-  else if(a==='wallpaper'){wallIdx=(wallIdx+1)%wallpapers.length;document.getElementById('wallpaper').style.background=wallpapers[wallIdx];}
-  else if(a==='newfile'){openApp('notepad');}
-  else if(a==='newfolder'){alert('📁 تم إنشاء مجلد جديد!');}
-  else if(a==='settings'){openApp('settings');}
-  else if(a==='store'){openApp('store');}
-  else if(a==='shutdown'){shutdown();}
-}
-
-function toggleStart(){document.getElementById('startmenu').classList.toggle('open');}
-function closeStart(){document.getElementById('startmenu').classList.remove('open');}
-function shutdown(){
-  if(confirm('هل تريد إيقاف تشغيل TilOS؟')){
-    closeStart();
-    document.getElementById('root').style.transition='opacity 1.5s';
-    document.getElementById('root').style.opacity='0';
-    setTimeout(()=>{document.body.style.background='#000';},1500);
+function enterDesktop(){
+  document.getElementById('auth-screen').style.display='none';
+  const u=DB.users[DB.currentUser];
+  wallIdx=u.wallIdx||0;
+  if(u.device==='mobile'){
+    document.getElementById('root').style.display='none';
+    document.getElementById('android-root').style.display='flex';
+    enterAndroid();
+  } else {
+    document.getElementById('root').style.display='block';
+    document.getElementById('android-root').style.display='none';
+    document.getElementById('ubadge').textContent='💻 '+(u.name.split(' ')[0]||u.name);
+    document.getElementById('wallpaper').style.background=wallpapers[wallIdx];
+    buildIcons();
+    updateClock();
   }
 }
-document.addEventListener('mousedown',e=>{
-  const sm=document.getElementById('startmenu');
-  if(!sm.contains(e.target)&&e.target.id!=='startbtn')closeStart();
-});
 
+function doLogout(){
+  Object.keys(openedApps).forEach(id=>closeApp(id,true));
+  stopAndroid();
+  DB.currentUser=null;saveDB();
+  document.getElementById('root').style.display='none';
+  document.getElementById('android-root').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  renderAuth('login');
+  closeStart();
+}
+
+if(DB.currentUser&&DB.users[DB.currentUser]) setTimeout(enterDesktop,80);
+
+// ===================== ICONS =====================
+const iconsList=[
+  {id:'calc',icon:'🧮',label:'حاسبة'},
+  {id:'notepad',icon:'📝',label:'المفكرة'},
+  {id:'explorer',icon:'📁',label:'الملفات'},
+  {id:'terminal',icon:'🖥️',label:'Terminal'},
+  {id:'settings',icon:'⚙️',label:'الإعدادات'},
+  {id:'store',icon:'🏪',label:'TilStore'},
+  {id:'music',icon:'🎵',label:'TilMusic'},
+  {id:'games',icon:'🎮',label:'الألعاب'},
+];
+function buildIcons(){
+  const d=document.getElementById('desktop');
+  d.innerHTML=iconsList.map(ic=>`<div class="icon" ondblclick="openApp('${ic.id}')" ontouchend="openApp('${ic.id}')"><div class="ibox">${ic.icon}</div><span>${ic.label}</span></div>`).join('');
+}
+function saveIconPos(){}
+
+// ===================== RIGHT CLICK =====================
+document.addEventListener('contextmenu',e=>{
+  if(!document.getElementById('root').style.display||document.getElementById('root').style.display==='none')return;
+  e.preventDefault();
+  const m=document.getElementById('ctxmenu');
+  m.style.display='block';
+  let x=e.clientX,y=e.clientY;
+  if(x+200>window.innerWidth)x=window.innerWidth-205;
+  if(y+200>window.innerHeight)y=window.innerHeight-205;
+  m.style.left=x+'px';m.style.top=y+'px';
+});
+document.addEventListener('mousedown',e=>{
+  if(!document.getElementById('ctxmenu').contains(e.target)) document.getElementById('ctxmenu').style.display='none';
+  const sm=document.getElementById('startmenu');
+  if(!sm.contains(e.target)&&e.target.id!=='startbtn') sm.classList.remove('open');
+});
+function ctxDo(a){
+  document.getElementById('ctxmenu').style.display='none';
+  if(a==='refresh'){const r=document.getElementById('root');r.style.opacity='.6';setTimeout(()=>r.style.opacity='1',300);}
+  else if(a==='wallpaper'){wallIdx=(wallIdx+1)%wallpapers.length;document.getElementById('wallpaper').style.background=wallpapers[wallIdx];if(DB.currentUser){DB.users[DB.currentUser].wallIdx=wallIdx;saveDB();}}
+  else if(a==='settings')openApp('settings');
+  else if(a==='store')openApp('store');
+  else if(a==='shutdown')shutdown();
+}
+function toggleStart(){document.getElementById('startmenu').classList.toggle('open');}
+function closeStart(){document.getElementById('startmenu').classList.remove('open');}
+function shutdown(){if(confirm('إيقاف تشغيل TilOS؟')){const r=document.getElementById('root');r.style.transition='opacity 1.5s';r.style.opacity='0';setTimeout(()=>document.body.style.background='#000',1500);}}
+
+// ===================== WINDOWS =====================
 function openApp(id){
   if(openedApps[id]){bringFront(openedApps[id]);openedApps[id].style.display='flex';return;}
   const cfgs={
-    calc:{title:'🧮 الحاسبة',w:260,h:390,x:100,y:60},
-    notepad:{title:'📝 المفكرة',w:420,h:300,x:180,y:80},
-    explorer:{title:'📁 مستكشف الملفات',w:460,h:320,x:80,y:110},
-    terminal:{title:'🖥️ Terminal',w:520,h:320,x:140,y:90},
-    settings:{title:'⚙️ الإعدادات',w:500,h:360,x:160,y:70},
-    store:{title:'🏪 TilStore',w:520,h:400,x:120,y:60},
-    music:{title:'🎵 TilMusic',w:460,h:480,x:200,y:50},
+    calc:{t:'🧮 الحاسبة',w:250,h:375,x:80,y:50},
+    notepad:{t:'📝 المفكرة',w:400,h:270,x:140,y:70},
+    explorer:{t:'📁 مستكشف الملفات',w:430,h:295,x:70,y:100},
+    terminal:{t:'🖥️ Terminal',w:490,h:295,x:120,y:80},
+    settings:{t:'⚙️ الإعدادات',w:470,h:330,x:140,y:60},
+    store:{t:'🏪 TilStore',w:490,h:370,x:100,y:55},
+    music:{t:'🎵 TilMusic',w:430,h:450,x:180,y:40},
+    games:{t:'🎮 الألعاب',w:400,h:320,x:90,y:60},
+    snake:{t:'🐍 Snake',w:330,h:410,x:110,y:40},
+    arrows:{t:'🏹 لعبة الأسهم',w:370,h:450,x:130,y:30},
+    tetris:{t:'🟦 Tetris',w:265,h:470,x:190,y:30},
   };
   const c=cfgs[id];if(!c)return;
+  const isMobile=window.innerWidth<=600;
   const win=document.createElement('div');
   win.className='win';win.id='w-'+id;
-  win.style.cssText=`width:${c.w}px;height:${c.h}px;left:${c.x}px;top:${c.y}px;z-index:${++zt}`;
-  win.innerHTML=`<div class="winbar" id="wb-${id}"><div class="winctrls"><button class="wbtn cl" onclick="closeApp('${id}')"></button><button class="wbtn mn" onclick="minApp('${id}')"></button><button class="wbtn mx" onclick="maxApp('${id}')"></button></div><div class="wintitle">${c.title}</div></div><div class="wincontent" id="wc-${id}"></div>`;
+  if(isMobile){win.style.cssText=`width:98vw;height:85vh;left:1vw;top:4px;z-index:${++zt}`;}
+  else{win.style.cssText=`width:${c.w}px;height:${c.h}px;left:${c.x}px;top:${c.y}px;z-index:${++zt}`;}
+  win.innerHTML=`<div class="winbar" id="wb-${id}"><div class="winctrls"><button class="wbtn cl" onclick="closeApp('${id}')"></button><button class="wbtn mn" onclick="minApp('${id}')"></button><button class="wbtn mx" onclick="maxApp('${id}')"></button></div><div class="wintitle">${c.t}</div></div><div class="wincontent" id="wc-${id}"></div>`;
   document.getElementById('root').appendChild(win);
   openedApps[id]=win;
-  makeDrag(win,document.getElementById('wb-'+id));
+  if(!isMobile)makeDrag(win,document.getElementById('wb-'+id));
   win.addEventListener('mousedown',()=>bringFront(win));
+  win.addEventListener('touchstart',()=>bringFront(win));
   buildContent(id);
-  addTb(id,c.title);
+  addTb(id,c.t);
 }
-
 function bringFront(w){w.style.zIndex=++zt;}
-function closeApp(id){const w=openedApps[id];if(w){w.remove();delete openedApps[id];}rmTb(id);if(id==='music')stopMusic();}
+function closeApp(id,silent){
+  if(id==='music')stopMusic();
+  if(id==='snake')stopSnake();
+  if(id==='arrows')stopArrows();
+  if(id==='tetris')stopTetris();
+  if(id==='notepad'&&DB.currentUser){const ta=document.querySelector('#wc-notepad textarea');if(ta){DB.users[DB.currentUser].notepad=ta.value;saveDB();}}
+  const w=openedApps[id];if(w){w.remove();delete openedApps[id];}rmTb(id);
+}
 function minApp(id){const w=openedApps[id];if(w)w.style.display=w.style.display==='none'?'flex':'none';}
 function maxApp(id){
   const w=openedApps[id];if(!w)return;
@@ -315,8 +707,15 @@ function addTb(id,title){
   const t=document.getElementById('tbapps');
   const el=document.createElement('div');
   el.className='tbapp active';el.id='tb-'+id;
-  el.textContent=title.replace(/\p{Emoji}/gu,'').trim().slice(0,14)||title.slice(2,16);
-  el.onclick=()=>{const w=openedApps[id];if(w){if(w.style.display==='none'){w.style.display='flex';bringFront(w);}else w.style.display='none';}};
+  const label=title.replace(/\p{Emoji}/gu,'').trim().slice(0,12);
+  el.innerHTML=`<span class="tb-label">${label}</span><span class="tb-close" onclick="event.stopPropagation();closeApp('${id}')" title="إغلاق">✕</span>`;
+  el.onclick=()=>{
+    const w=openedApps[id];
+    if(w){
+      if(w.style.display==='none'){w.style.display='flex';bringFront(w);}
+      else w.style.display='none';
+    }
+  };
   t.appendChild(el);
 }
 function rmTb(id){const el=document.getElementById('tb-'+id);if(el)el.remove();}
@@ -324,27 +723,25 @@ function makeDrag(win,handle){
   let ox=0,oy=0;
   handle.addEventListener('mousedown',e=>{
     if(e.target.classList.contains('wbtn'))return;
-    e.preventDefault();
-    ox=e.clientX-win.offsetLeft;oy=e.clientY-win.offsetTop;
-    const mv=e=>{
-      win.style.left=Math.max(0,Math.min(window.innerWidth-50,e.clientX-ox))+'px';
-      win.style.top=Math.max(0,Math.min(window.innerHeight-48,e.clientY-oy))+'px';
-    };
+    e.preventDefault();ox=e.clientX-win.offsetLeft;oy=e.clientY-win.offsetTop;
+    const mv=e=>{win.style.left=Math.max(0,e.clientX-ox)+'px';win.style.top=Math.max(0,e.clientY-oy)+'px';};
     const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
     document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
   });
 }
 
-// Build Content
+// ===================== BUILD CONTENT =====================
 function buildContent(id){
   const wc=document.getElementById('wc-'+id);
   if(id==='notepad'){
-    wc.innerHTML='<textarea class="np-textarea" placeholder="اكتب هنا..."></textarea>';
     wc.style.height='100%';
+    const saved=(DB.currentUser&&DB.users[DB.currentUser].notepad)||'';
+    wc.innerHTML=`<textarea style="width:100%;height:100%;padding:14px;font-family:'Courier New',monospace;font-size:13px;color:#222;border:none;outline:none;resize:none;background:#fafafa;" placeholder="اكتب هنا...">${saved}</textarea>`;
+    wc.querySelector('textarea').addEventListener('input',function(){if(DB.currentUser){DB.users[DB.currentUser].notepad=this.value;saveDB();}});
   }
   else if(id==='explorer'){
-    const files=[{i:'📁',n:'المستندات'},{i:'📁',n:'الصور'},{i:'📁',n:'التنزيلات'},{i:'📁',n:'الموسيقى'},{i:'📄',n:'readme.txt'},{i:'🎵',n:'music.mp3'},{i:'🖼️',n:'photo.png'},{i:'📊',n:'data.xlsx'},{i:'⚙️',n:'config.sys'},{i:'🗑️',n:'المهملات'}];
-    wc.innerHTML=`<div class="expbar"><span style="color:#0d6efd;font-size:20px">🖥️</span><span style="color:#666;font-size:12px;margin-left:6px">TilOS / الجهاز</span></div><div class="expgrid">${files.map(f=>`<div class="expitem"><div class="ei">${f.i}</div><div class="en">${f.n}</div></div>`).join('')}</div>`;
+    const files=[{i:'📁',n:'المستندات'},{i:'📁',n:'الصور'},{i:'📁',n:'التنزيلات'},{i:'📁',n:'الموسيقى'},{i:'📄',n:'readme.txt'},{i:'🎵',n:'music.mp3'},{i:'🖼️',n:'photo.png'},{i:'⚙️',n:'config.sys'},{i:'🗑️',n:'المهملات'}];
+    wc.innerHTML=`<div class="expbar"><span style="color:#0d6efd;font-size:18px">🖥️</span><span style="color:#555;font-size:11px;margin-left:6px">TilOS / الجهاز</span></div><div class="expgrid">${files.map(f=>`<div class="expitem"><div class="ei">${f.i}</div><div class="en">${f.n}</div></div>`).join('')}</div>`;
   }
   else if(id==='calc'){
     wc.innerHTML=`<div id="calcwrap"><div id="cdisp">0</div><div class="cgrid">
@@ -355,18 +752,17 @@ function buildContent(id){
       <button class="cbtn n" style="grid-column:span 2" onclick="cn('0')">0</button><button class="cbtn n" onclick="cn('.')">.</button><button class="cbtn e" onclick="ceq()">=</button>
     </div></div>`;
   }
-  else if(id==='terminal'){
-    wc.innerHTML=`<div id="term"><div id="termout"></div><div id="terminput"><span id="tprompt">admin@TilOS:~$&nbsp;</span><input type="text" id="tinput" autocomplete="off" spellcheck="false" placeholder="اكتب أمر واضغط Enter..."/></div></div>`;
-    wc.style.cssText='display:flex;flex-direction:column;height:100%;';
-    document.getElementById('term').style.cssText='display:flex;flex-direction:column;height:100%;';
-    initTerm();
-  }
+  else if(id==='terminal'){buildTerminal(wc);}
   else if(id==='settings'){buildSettings(wc);}
   else if(id==='store'){buildStore(wc);}
   else if(id==='music'){buildMusic(wc);}
+  else if(id==='games'){buildGames(wc);}
+  else if(id==='snake'){buildSnake(wc);}
+  else if(id==='arrows'){buildArrows(wc);}
+  else if(id==='tetris'){buildTetris(wc);}
 }
 
-// Calculator
+// ===== CALC =====
 let cv='0',cop=null,cprev=null,cnew=true;
 function cd(){const el=document.getElementById('cdisp');if(el)el.textContent=cv;}
 function cn(n){if(cnew){cv=n==='.'?'0.':n;cnew=false;}else{if(n==='.'&&cv.includes('.'))return;cv=cv==='0'&&n!=='.'?n:cv+n;}cd();}
@@ -374,290 +770,768 @@ function co(op){if(cop&&!cnew)ceq();cprev=parseFloat(cv);cop=op;cnew=true;}
 function ceq(){if(!cop||cprev===null)return;const cur=parseFloat(cv);let r;if(cop==='+')r=cprev+cur;else if(cop==='-')r=cprev-cur;else if(cop==='*')r=cprev*cur;else if(cop==='/')r=cur===0?'خطأ':cprev/cur;cv=r==='خطأ'?'خطأ':String(parseFloat(r.toFixed(10)));cop=null;cprev=null;cnew=true;cd();}
 function cf(fn){let v=parseFloat(cv);if(fn==='C'){cv='0';cop=null;cprev=null;cnew=true;}else if(fn==='+/-')cv=String(-v);else if(fn==='%')cv=String(v/100);cd();}
 
-// Terminal
-function initTerm(){
+// ===== TERMINAL =====
+function buildTerminal(wc){
+  wc.innerHTML=`<div id="term"><div id="termout"></div><div id="terminput"><span id="tprompt">admin@TilOS:~$&nbsp;</span><input type="text" id="tinput" autocomplete="off" spellcheck="false" placeholder="اكتب أمر..."/></div></div>`;
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;';
+  document.getElementById('term').style.cssText='display:flex;flex-direction:column;height:100%;';
   const out=document.getElementById('termout'),inp=document.getElementById('tinput');
-  if(!out||!inp)return;
-  const p=(txt,col='#3ddc84')=>{const d=document.createElement('div');d.className='tline';d.style.color=col;d.innerHTML=txt;out.appendChild(d);out.scrollTop=out.scrollHeight;};
-  p('<span style="color:#0d6efd;font-size:15px;font-weight:bold">TilOS Terminal v1.0</span>','#fff');
-  p('مرحباً! اكتب <span style="color:#febc2e">help</span> لعرض الأوامر.','#666');p('');
+  const p=(txt,col='#3ddc84')=>{const d=document.createElement('div');d.style.color=col;d.innerHTML=txt;out.appendChild(d);out.scrollTop=out.scrollHeight;};
+  p('<b style="color:#0d6efd">TilOS Terminal v1.0</b>','#fff');
+  p('اكتب <span style="color:#febc2e">help</span> للأوامر','#555');p('');
   const cmds={
-    help:()=>{p('┌──────────────────────────────┐','#0d6efd');p('│      الأوامر المتاحة          │','#0d6efd');p('└──────────────────────────────┘','#0d6efd');['help','ls','date','time','whoami','uname','clear','color','echo [نص]','calc','music','store','hello'].forEach(c=>p('  '+c,'#febc2e'));},
-    ls:()=>{['📄 readme.txt','📁 home','📁 tmp','⚙️  system','🎵 music.mp3','🖼️  photos'].forEach(f=>p(f));},
+    help:()=>['help','ls','date','time','whoami','uname','clear','color','echo [نص]','calc','music','games','store'].forEach(c=>p('  '+c,'#febc2e')),
+    ls:()=>['📄 readme.txt','📁 home','📁 tmp','⚙️ system','🎵 music'].forEach(f=>p(f)),
     date:()=>p(new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})),
     time:()=>p(new Date().toLocaleTimeString('ar-EG')),
-    whoami:()=>{p('المستخدم: <span style="color:#febc2e">admin</span>');p('الصلاحيات: <span style="color:#28c840">مدير النظام 👑</span>');},
-    uname:()=>{p('TilOS 1.0.0 (TilCore™ X9 x86_64)');p('الذاكرة: 8 GB | المساحة: 512 GB');},
+    whoami:()=>{const u=DB.currentUser?DB.users[DB.currentUser]:null;p(u?`<span style="color:#febc2e">${u.name}</span> (${DB.currentUser})`:'غير مسجل');},
+    uname:()=>p('TilOS 1.0.0 TilCore™ X9 x86_64'),
     clear:()=>{out.innerHTML='';},
-    color:()=>{const colors=['#3ddc84','#4db3ff','#febc2e','#ff79c6','#c792ea','#80ffea'];out.style.color=colors[Math.floor(Math.random()*colors.length)];p('✓ تم تغيير اللون!');},
-    calc:()=>{openApp('calc');p('✓ تم فتح الحاسبة 🧮');},
-    music:()=>{openApp('music');p('✓ تم فتح TilMusic 🎵');},
-    store:()=>{openApp('store');p('✓ تم فتح TilStore 🏪');},
-    hello:()=>p('أهلاً وسهلاً! TilOS يرحب بك 🎉','#febc2e'),
+    color:()=>{const c=['#3ddc84','#4db3ff','#febc2e','#ff79c6','#c792ea'];out.style.color=c[Math.floor(Math.random()*c.length)];p('✓ تم تغيير اللون');},
+    calc:()=>{openApp('calc');p('✓ فتح الحاسبة');},
+    music:()=>{openApp('music');p('✓ فتح TilMusic');},
+    games:()=>{openApp('games');p('✓ فتح الألعاب');},
+    store:()=>{openApp('store');p('✓ فتح TilStore');}
   };
-  inp.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      const raw=inp.value.trim();inp.value='';
-      if(!raw)return;
-      p(`<span style="color:#0d6efd;font-weight:bold">admin@TilOS:~$</span> <span style="color:#fff">${raw}</span>`,'');
-      const parts=raw.split(' ');const cmd=parts[0].toLowerCase();
-      if(cmd==='echo')p(parts.slice(1).join(' ')||'');
-      else if(cmds[cmd])cmds[cmd]();
-      else p(`bash: <span style="color:#ff5f57">${cmd}</span>: غير موجود — جرب <span style="color:#febc2e">help</span>`,'#ff5f57');
-      p('');
-    }
-  });
-  setTimeout(()=>inp.focus(),200);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const raw=inp.value.trim();inp.value='';if(!raw)return;p(`<span style="color:#0d6efd;font-weight:bold">admin@TilOS:~$</span> <span style="color:#fff">${raw}</span>`,'');const parts=raw.split(' ');const cmd=parts[0].toLowerCase();if(cmd==='echo')p(parts.slice(1).join(' ')||'');else if(cmds[cmd])cmds[cmd]();else p(`bash: <span style="color:#ff5f57">${cmd}</span>: غير موجود — جرب <span style="color:#febc2e">help</span>`,'#ff5f57');p('');}});
+  setTimeout(()=>inp.focus(),150);
 }
 
-// Settings
-let toggleStates={darkmode:true,notif:true,sound:true,updates:false};
+// ===== SETTINGS =====
 function buildSettings(wc){
   wc.style.height='100%';
-  wc.innerHTML=`<div class="settings-wrap">
-    <div class="settings-nav">
-      <div class="sn-item active" onclick="showSettingsPage('general',this)">🖥️ عام</div>
-      <div class="sn-item" onclick="showSettingsPage('display',this)">🎨 العرض</div>
-      <div class="sn-item" onclick="showSettingsPage('sound',this)">🔊 الصوت</div>
-      <div class="sn-item" onclick="showSettingsPage('about',this)">💻 حول النظام</div>
-    </div>
-    <div class="settings-content" id="settings-page">
-      ${settingsGeneral()}
-    </div>
-  </div>`;
+  wc.innerHTML=`<div class="settings-wrap"><div class="settings-nav"><div class="sn-item active" onclick="showSP('general',this)">🖥️ عام</div><div class="sn-item" onclick="showSP('display',this)">🎨 العرض</div><div class="sn-item" onclick="showSP('account',this)">👤 الحساب</div><div class="sn-item" onclick="showSP('about',this)">💻 حول</div></div><div class="settings-content" id="sp"></div></div>`;
+  showSP('general',wc.querySelector('.sn-item'));
 }
-function showSettingsPage(page,el){
+function showSP(page,el){
   document.querySelectorAll('.sn-item').forEach(i=>i.classList.remove('active'));
-  el.classList.add('active');
-  const pages={general:settingsGeneral,display:settingsDisplay,sound:settingsSound,about:settingsAbout};
-  document.getElementById('settings-page').innerHTML=(pages[page]||settingsGeneral)();
+  if(el)el.classList.add('active');
+  const u=DB.currentUser?DB.users[DB.currentUser]:{};
+  const pages={
+    general:`<div class="s-section"><div class="s-title">إعدادات عامة</div><div class="s-row"><span>الوضع الداكن</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="s-row"><span>الإشعارات</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="s-row"><span>التحديثات التلقائية</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div><div class="s-row"><span>اللغة</span><span class="s-val">العربية</span></div></div>`,
+    display:`<div class="s-section"><div class="s-title">إعدادات العرض</div><div class="s-row"><span>الخلفية</span><button onclick="ctxDo('wallpaper')" style="background:#0d6efd;border:none;border-radius:6px;color:#fff;padding:5px 12px;cursor:pointer;font-size:11px;">تغيير</button></div><div class="s-row"><span>دقة الشاشة</span><span class="s-val">1920×1080</span></div><div class="s-row"><span>الشفافية</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div></div>`,
+    account:`<div class="s-section"><div class="s-title">معلومات الحساب</div><div class="s-info"><div class="si-row2"><span class="sik2">الاسم</span><span class="siv2">${u.name||'—'}</span></div><div class="si-row2"><span class="sik2">المستخدم</span><span class="siv2">${DB.currentUser||'—'}</span></div><div class="si-row2"><span class="sik2">الإيميل</span><span class="siv2">${u.email||'—'}</span></div></div><button class="logout-btn" onclick="doLogout()">🚪 تسجيل الخروج</button></div>`,
+    about:`<div class="s-section"><div class="s-title">حول TilOS</div><div class="s-info"><div class="si-row2"><span class="sik2">النظام</span><span class="siv2">TilOS 1.0</span></div><div class="si-row2"><span class="sik2">الإصدار</span><span class="siv2">1.0.0 Stable</span></div><div class="si-row2"><span class="sik2">المعالج</span><span class="siv2">TilCore™ X9</span></div><div class="si-row2"><span class="sik2">الذاكرة</span><span class="siv2">8 GB RAM</span></div><div class="si-row2"><span class="sik2">المساحة</span><span class="siv2">512 GB SSD</span></div></div></div>`,
+  };
+  const sp=document.getElementById('sp');if(sp)sp.innerHTML=pages[page]||'';
 }
-function settingsGeneral(){return`<div class="s-section"><div class="s-title">الإعدادات العامة</div>
-  <div class="s-row"><span>الوضع الداكن</span><button class="toggle on" id="tg-dark" onclick="togSet('dark',this)"></button></div>
-  <div class="s-row"><span>الإشعارات</span><button class="toggle on" id="tg-notif" onclick="togSet('notif',this)"></button></div>
-  <div class="s-row"><span>التحديثات التلقائية</span><button class="toggle" id="tg-upd" onclick="togSet('upd',this)"></button></div>
-  <div class="s-row"><span>اللغة</span><span class="s-val">العربية</span></div>
-  <div class="s-row"><span>المنطقة الزمنية</span><span class="s-val">القاهرة UTC+3</span></div>
-</div>`;}
-function settingsDisplay(){return`<div class="s-section"><div class="s-title">إعدادات العرض</div>
-  <div class="s-row"><span>الخلفية</span><button onclick="ctxAction('wallpaper')" style="background:#0d6efd;border:none;border-radius:6px;color:#fff;padding:5px 12px;cursor:pointer;font-size:12px;">تغيير</button></div>
-  <div class="s-row"><span>دقة الشاشة</span><span class="s-val">1920×1080</span></div>
-  <div class="s-row"><span>حجم الخط</span><span class="s-val">13px</span></div>
-  <div class="s-row"><span>تأثيرات الشفافية</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
-</div>`;}
-function settingsSound(){return`<div class="s-section"><div class="s-title">إعدادات الصوت</div>
-  <div class="s-row"><span>تفعيل الصوت</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
-  <div class="s-row"><span>مستوى الصوت</span><span class="s-val">80%</span></div>
-  <div class="s-row"><span>أصوات النظام</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
-</div>`;}
-function settingsAbout(){return`<div class="s-section"><div class="s-title">حول TilOS</div>
-  <div class="s-info">
-    <div class="si-row2"><span class="sik2">اسم النظام</span><span class="siv2">TilOS</span></div>
-    <div class="si-row2"><span class="sik2">الإصدار</span><span class="siv2">1.0.0 Stable</span></div>
-    <div class="si-row2"><span class="sik2">المعالج</span><span class="siv2">TilCore™ X9</span></div>
-    <div class="si-row2"><span class="sik2">الذاكرة</span><span class="siv2">8 GB RAM</span></div>
-    <div class="si-row2"><span class="sik2">المساحة</span><span class="siv2">512 GB SSD</span></div>
-    <div class="si-row2"><span class="sik2">المستخدم</span><span class="siv2">Admin</span></div>
-    <div class="si-row2"><span class="sik2">Build</span><span class="siv2">2025.1.0</span></div>
-  </div>
-</div>`;}
-function togSet(k,btn){btn.classList.toggle('on');}
 
-// TilStore
-const storeApps=[
-  {i:'🎵',n:'TilMusic',cat:'ترفيه',id:'music',installed:true},
-  {i:'🖥️',n:'Terminal Pro',cat:'أدوات',id:'terminal',installed:true},
-  {i:'🎮',n:'TilGames',cat:'ألعاب',id:null,installed:false},
-  {i:'📰',n:'TilNews',cat:'أخبار',id:null,installed:false},
-  {i:'📸',n:'TilCamera',cat:'صور',id:null,installed:false},
-  {i:'🗓️',n:'TilCalendar',cat:'إنتاجية',id:null,installed:false},
-  {i:'📧',n:'TilMail',cat:'تواصل',id:null,installed:false},
-  {i:'🌐',n:'TilBrowser',cat:'إنترنت',id:null,installed:false},
+// ===== STORE =====
+// All store apps
+const allStoreApps=[
+  {i:'🎵',n:'TilMusic',cat:'ترفيه',id:'music',builtin:true},
+  {i:'🐍',n:'Snake',cat:'ألعاب',id:'snake',builtin:true},
+  {i:'🏹',n:'لعبة الأسهم',cat:'ألعاب',id:'arrows',builtin:true},
+  {i:'🟦',n:'Tetris',cat:'ألعاب',id:'tetris',builtin:true},
+  {i:'📰',n:'TilNews',cat:'أخبار',id:'tiln',builtin:false},
+  {i:'📸',n:'TilCamera',cat:'صور',id:'tilc',builtin:false},
+  {i:'🗓️',n:'TilCalendar',cat:'إنتاجية',id:'tild',builtin:false},
+  {i:'🌐',n:'TilBrowser',cat:'إنترنت',id:'tilb',builtin:false},
+  {i:'🧮',n:'الحاسبة',cat:'أدوات',id:'calc',builtin:true},
+  {i:'📝',n:'المفكرة',cat:'أدوات',id:'notepad',builtin:true},
+  {i:'🎮',n:'الألعاب',cat:'ألعاب',id:'games',builtin:true},
 ];
+
+function getUserApps(){
+  if(!DB.currentUser)return[];
+  return DB.users[DB.currentUser].installedApps||[];
+}
+function isInstalled(id){
+  const u=DB.users[DB.currentUser];
+  if(!u)return false;
+  const installed=u.installedApps||[];
+  const app=allStoreApps.find(a=>a.id===id);
+  return app&&app.builtin||installed.includes(id);
+}
+function installAppToDesktop(id,btn){
+  const u=DB.users[DB.currentUser];
+  if(!u)return;
+  if(!u.installedApps)u.installedApps=[];
+  if(!u.installedApps.includes(id)){
+    u.installedApps.push(id);
+    saveDB();
+  }
+  btn.textContent='مثبت ✓';btn.className='sc-btn installed';btn.disabled=false;
+  // Add to desktop icons
+  const app=allStoreApps.find(a=>a.id===id);
+  if(app){
+    if(u.device==='mobile'){
+      // Add to android home
+      const existing=document.querySelector(`.and-app-icon[data-id="${id}"]`);
+      if(!existing){
+        const grid=document.getElementById('and-apps-grid');
+        if(grid){
+          const el=document.createElement('div');
+          el.className='and-app-icon';
+          el.dataset.id=id;
+          el.innerHTML=`<div class="and-icon-box" style="background:#607D8B">${app.i}</div><span>${app.n}</span>`;
+          el.onclick=()=>andOpenApp(id);
+          grid.appendChild(el);
+        }
+        andAddNotif('المتجر','تم تثبيت '+app.n+' ✅');
+      }
+    } else {
+      // Add to PC desktop
+      if(!iconsList.find(ic=>ic.id===id)){
+        iconsList.push({id:app.id,icon:app.i,label:app.n});
+        buildIcons();
+      }
+    }
+  }
+}
+
 function buildStore(wc){
   wc.style.cssText='display:flex;flex-direction:column;height:100%;';
+  const storeHTML=()=>allStoreApps.map(a=>{
+    const ins=isInstalled(a.id);
+    return`<div class="store-card">
+      <div class="sc-icon">${a.i}</div>
+      <div class="sc-name">${a.n}</div>
+      <div class="sc-cat">${a.cat}</div>
+      <button class="sc-btn ${ins?'installed':''}" id="sbtn-${a.id}" onclick="handleStoreBtn('${a.id}',this)">
+        ${ins?'فتح ✓':'تثبيت'}
+      </button>
+    </div>`;
+  }).join('');
   wc.innerHTML=`<div class="store-wrap">
-    <div class="store-header">
-      <input class="store-search" placeholder="🔍  ابحث عن تطبيق..." oninput="filterStore(this.value)"/>
-    </div>
+    <div class="store-header"><input class="store-search" placeholder="🔍 ابحث عن تطبيق..." oninput="filterStore(this.value)"/></div>
     <div class="store-body">
-      <div class="store-section">
-        <div class="store-stitle">جميع التطبيقات</div>
-        <div class="store-grid" id="store-grid">
-          ${storeApps.map(a=>storeCard(a)).join('')}
-        </div>
-      </div>
+      <div class="store-stitle">جميع التطبيقات</div>
+      <div class="store-grid" id="store-grid">${storeHTML()}</div>
     </div>
-  </div>`;
-}
-function storeCard(a){
-  return`<div class="store-card">
-    <div class="sc-icon">${a.i}</div>
-    <div class="sc-name">${a.n}</div>
-    <div class="sc-cat">${a.cat}</div>
-    <button class="sc-btn ${a.installed?'installed':''}" onclick="installApp('${a.id||a.n}','${a.installed}',this)">
-      ${a.installed?'مثبت ✓':'تثبيت'}
-    </button>
   </div>`;
 }
 function filterStore(q){
-  const grid=document.getElementById('store-grid');if(!grid)return;
-  const filtered=storeApps.filter(a=>a.n.includes(q)||a.cat.includes(q));
-  grid.innerHTML=filtered.map(a=>storeCard(a)).join('');
+  const g=document.getElementById('store-grid');if(!g)return;
+  const filtered=allStoreApps.filter(a=>a.n.includes(q)||a.cat.includes(q));
+  g.innerHTML=filtered.map(a=>{const ins=isInstalled(a.id);return`<div class="store-card"><div class="sc-icon">${a.i}</div><div class="sc-name">${a.n}</div><div class="sc-cat">${a.cat}</div><button class="sc-btn ${ins?'installed':''}" onclick="handleStoreBtn('${a.id}',this)">${ins?'فتح ✓':'تثبيت'}</button></div>`;}).join('');
 }
-function installApp(id,installed,btn){
-  if(installed==='true'){if(id)openApp(id);return;}
-  btn.textContent='جاري التثبيت...';btn.disabled=true;
-  setTimeout(()=>{btn.textContent='مثبت ✓';btn.className='sc-btn installed';btn.disabled=false;},2000);
+function handleStoreBtn(id,btn){
+  const app=allStoreApps.find(a=>a.id===id);
+  if(!app)return;
+  if(isInstalled(id)){
+    // open it
+    if(app.builtin){
+      const u=DB.users[DB.currentUser];
+      if(u&&u.device==='mobile') andOpenApp(id);
+      else openApp(id);
+    }
+    return;
+  }
+  btn.textContent='جاري...';btn.disabled=true;
+  setTimeout(()=>installAppToDesktop(id,btn),1500);
 }
 
-// TilMusic
-let audio=null,musicPlaying=false,currentSong=null,progInterval=null;
-const builtinSongs=[
-  {name:'Midnight Drive',artist:'TilBeats',dur:'3:42',emoji:'🌙'},
-  {name:'Digital Dreams',artist:'CyberWave',dur:'4:15',emoji:'💫'},
-  {name:'Neon Lights',artist:'SynthCity',dur:'3:58',emoji:'🌆'},
-  {name:'Ocean Breeze',artist:'ChillZone',dur:'5:20',emoji:'🌊'},
-  {name:'Morning Coffee',artist:'LoFi Studio',dur:'3:10',emoji:'☕'},
-];
-let userSongs=[];
+// ===== MUSIC =====
+let audio=null,musicPlaying=false,curSong=null,progIv=null,userSongs=[];
+const builtinSongs=[{name:'Midnight Drive',artist:'TilBeats',dur:'3:42',emoji:'🌙'},{name:'Digital Dreams',artist:'CyberWave',dur:'4:15',emoji:'💫'},{name:'Neon Lights',artist:'SynthCity',dur:'3:58',emoji:'🌆'},{name:'Ocean Breeze',artist:'ChillZone',dur:'5:20',emoji:'🌊'},{name:'Morning Coffee',artist:'LoFi Studio',dur:'3:10',emoji:'☕'}];
 function buildMusic(wc){
   wc.style.cssText='display:flex;flex-direction:column;height:100%;';
-  wc.innerHTML=`<div class="music-wrap">
-    <div class="music-header">
-      <div class="music-title">🎵 TilMusic</div>
-      <div class="music-sub">استمع لموسيقاك المفضلة</div>
+  wc.innerHTML=`<div class="music-wrap"><div class="music-body"><div class="music-stitle">أضف أغانيك</div><div class="upload-btn" onclick="document.getElementById('music-file-input').click()">➕ رفع أغاني من جهازك</div><div id="usl"></div><div class="music-stitle" style="margin-top:12px;margin-bottom:7px">أغاني TilMusic</div><div id="bsl">${builtinSongs.map((s,i)=>`<div class="song-item" id="bs-${i}" onclick="playSong(${i},false)"><span style="font-size:18px">${s.emoji}</span><div style="flex:1"><div class="song-name">${s.name}</div><div class="song-artist">${s.artist}</div></div><span style="color:#333;font-size:10px">${s.dur}</span></div>`).join('')}</div></div><div class="music-player"><div style="display:flex;align-items:center;gap:9px;margin-bottom:9px"><div style="width:38px;height:38px;border-radius:8px;background:#1a2a3a;display:flex;align-items:center;justify-content:center;font-size:18px" id="p-art">🎵</div><div><div style="color:#ddd;font-size:12px;font-weight:600" id="p-name">اختر أغنية</div><div style="color:#444;font-size:10px" id="p-artist">TilMusic</div></div></div><div class="player-controls"><button class="pc-btn" onclick="prevSong()">⏮</button><button class="pc-btn play" id="play-btn" onclick="togglePlay()">▶️</button><button class="pc-btn" onclick="nextSong()">⏭</button></div><div class="prog-bar" onclick="seekM(event,this)"><div class="prog-fill" id="pf" style="width:0%"></div></div><div class="prog-times"><span id="pc">0:00</span><span id="pt">0:00</span></div></div></div>`;
+  renderUSongs();
+}
+function renderUSongs(){const el=document.getElementById('usl');if(!el)return;el.innerHTML=userSongs.length?userSongs.map((s,i)=>`<div class="song-item" id="us-${i}" onclick="playSong(${i},true)"><span style="font-size:18px">🎵</span><div style="flex:1"><div class="song-name">${s.name}</div><div class="song-artist">ملفاتي</div></div></div>`).join(''):'<div style="color:#1e2d3d;font-size:11px;padding:4px">لم تضف أغاني بعد</div>';}
+document.getElementById('music-file-input').addEventListener('change',function(e){Array.from(e.target.files).forEach(f=>userSongs.push({name:f.name.replace(/\.[^.]+$/,''),file:f}));renderUSongs();this.value='';});
+let fakeT=0,fakeMax=0;
+function playSong(idx,isUser){
+  document.querySelectorAll('.song-item').forEach(e=>e.classList.remove('playing'));
+  if(audio){audio.pause();audio=null;}clearInterval(progIv);
+  if(isUser){const s=userSongs[idx];if(!s)return;const el=document.getElementById('us-'+idx);if(el)el.classList.add('playing');audio=new Audio(URL.createObjectURL(s.file));updatePUI(s.name,'ملفاتي','🎵');audio.play().catch(()=>{});progIv=setInterval(()=>{if(!audio)return;const pf=document.getElementById('pf'),pc=document.getElementById('pc'),pt=document.getElementById('pt');if(pf&&audio.duration)pf.style.width=(audio.currentTime/audio.duration*100)+'%';if(pc)pc.textContent=fmtT(audio.currentTime);if(pt&&audio.duration)pt.textContent=fmtT(audio.duration);},500);musicPlaying=true;curSong={idx,isUser:true};document.getElementById('play-btn').textContent='⏸️';}
+  else{const s=builtinSongs[idx];if(!s)return;const el=document.getElementById('bs-'+idx);if(el)el.classList.add('playing');updatePUI(s.name,s.artist,s.emoji);const parts=s.dur.split(':');fakeMax=parseInt(parts[0])*60+parseInt(parts[1]);fakeT=0;const pt=document.getElementById('pt');if(pt)pt.textContent=s.dur;musicPlaying=true;curSong={idx,isUser:false};document.getElementById('play-btn').textContent='⏸️';progIv=setInterval(()=>{if(!musicPlaying)return;fakeT++;if(fakeT>fakeMax)fakeT=0;const pf=document.getElementById('pf'),pc=document.getElementById('pc');if(pf)pf.style.width=(fakeT/fakeMax*100)+'%';if(pc)pc.textContent=fmtT(fakeT);},1000);}
+}
+function updatePUI(n,a,e){const pa=document.getElementById('p-art'),pn=document.getElementById('p-name'),par=document.getElementById('p-artist');if(pa)pa.textContent=e;if(pn)pn.textContent=n;if(par)par.textContent=a;}
+function togglePlay(){if(!curSong)return;if(curSong.isUser&&audio){if(musicPlaying){audio.pause();musicPlaying=false;document.getElementById('play-btn').textContent='▶️';}else{audio.play();musicPlaying=true;document.getElementById('play-btn').textContent='⏸️';}}else{musicPlaying=!musicPlaying;document.getElementById('play-btn').textContent=musicPlaying?'⏸️':'▶️';}}
+function nextSong(){if(!curSong)return;playSong((curSong.idx+1)%builtinSongs.length,false);}
+function prevSong(){if(!curSong)return;playSong((curSong.idx-1+builtinSongs.length)%builtinSongs.length,false);}
+function stopMusic(){if(audio){audio.pause();audio=null;}clearInterval(progIv);musicPlaying=false;}
+function seekM(e,bar){if(!curSong||curSong.isUser)return;fakeT=Math.floor((e.offsetX/bar.offsetWidth)*fakeMax);}
+function fmtT(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+
+// ===== GAMES =====
+function buildGames(wc){
+  wc.innerHTML=`<div class="games-wrap"><div style="color:#0d6efd;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">اختر لعبة</div><div class="games-grid"><div class="game-card" onclick="openApp('snake')"><div class="gc-icon">🐍</div><div class="gc-name">Snake</div><div class="gc-desc">كلاسيكية</div></div><div class="game-card" onclick="openApp('arrows')"><div class="gc-icon">🏹</div><div class="gc-name">الأسهم</div><div class="gc-desc">فك الأسهم</div></div><div class="game-card" onclick="openApp('tetris')"><div class="gc-icon">🟦</div><div class="gc-name">Tetris</div><div class="gc-desc">كلاسيكية</div></div></div></div>`;
+}
+
+// ===== SNAKE =====
+let snakeIv=null;
+function buildSnake(wc){
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;background:#07101c;';
+  wc.innerHTML=`<div class="snake-wrap"><div class="game-score" style="color:#3ddc84" id="snake-sc">النقاط: 0</div><canvas id="snake-cv" width="300" height="300" style="border:2px solid rgba(61,220,132,0.3);border-radius:8px;touch-action:none;"></canvas><div class="game-hint">← → ↑ ↓ | سحب للموبايل | Space للبدء</div></div>`;
+  const canvas=document.getElementById('snake-cv');
+  const ctx=canvas.getContext('2d');
+  const SZ=15,COLS=20,ROWS=20;
+  let snake=[{x:10,y:10}],dir={x:1,y:0},food={x:5,y:5},score=0,running=false,started=false;
+  function rndFood(){food={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)};}
+  function draw(){
+    ctx.fillStyle='#07101c';ctx.fillRect(0,0,300,300);
+    ctx.fillStyle='#ff5f57';ctx.fillRect(food.x*SZ,food.y*SZ,SZ-1,SZ-1);
+    snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#3ddc84':'#28a86a';ctx.fillRect(s.x*SZ,s.y*SZ,SZ-1,SZ-1);});
+    if(!started){ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,300,300);ctx.fillStyle='#3ddc84';ctx.font='bold 16px Segoe UI';ctx.textAlign='center';ctx.fillText('Space / اضغط للبدء',150,150);}
+  }
+  function step(){
+    const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+    if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS||snake.some(s=>s.x===head.x&&s.y===head.y)){
+      running=false;started=false;clearInterval(snakeIv);
+      ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,300,300);ctx.fillStyle='#ff5f57';ctx.font='bold 18px Segoe UI';ctx.textAlign='center';ctx.fillText('انتهت اللعبة!',150,130);ctx.fillStyle='#fff';ctx.font='14px Segoe UI';ctx.fillText('النقاط: '+score,150,158);ctx.fillText('Space للإعادة',150,182);return;
+    }
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){score++;document.getElementById('snake-sc').textContent='النقاط: '+score;rndFood();}else snake.pop();
+    draw();
+  }
+  draw();
+  function startGame(){snake=[{x:10,y:10}];dir={x:1,y:0};score=0;document.getElementById('snake-sc').textContent='النقاط: 0';rndFood();running=true;started=true;clearInterval(snakeIv);snakeIv=setInterval(step,120);}
+  // Touch swipe
+  let tx=0,ty=0;
+  canvas.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;if(!started)startGame();},{passive:true});
+  canvas.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>Math.abs(dy)){if(dx>20&&dir.x!==-1)dir={x:1,y:0};else if(dx<-20&&dir.x!==1)dir={x:-1,y:0};}
+    else{if(dy>20&&dir.y!==-1)dir={x:0,y:1};else if(dy<-20&&dir.y!==1)dir={x:0,y:-1};}
+  },{passive:true});
+  document.addEventListener('keydown',function sk(e){
+    if(!document.getElementById('snake-cv'))return document.removeEventListener('keydown',sk);
+    if(e.code==='Space'){e.preventDefault();if(!running)startGame();else{running=!running;if(running)snakeIv=setInterval(step,120);else clearInterval(snakeIv);}}
+    if(!running)return;
+    if(e.key==='ArrowUp'&&dir.y!==1)dir={x:0,y:-1};
+    else if(e.key==='ArrowDown'&&dir.y!==-1)dir={x:0,y:1};
+    else if(e.key==='ArrowLeft'&&dir.x!==1)dir={x:-1,y:0};
+    else if(e.key==='ArrowRight'&&dir.x!==-1)dir={x:1,y:0};
+  });
+}
+function stopSnake(){clearInterval(snakeIv);}
+
+// ===== ARROWS GAME =====
+let arrowsRaf=null,arrowsRunning=false;
+function buildArrows(wc){
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;background:#07101c;';
+  wc.innerHTML=`<div class="arrows-wrap"><div class="game-score" style="color:#febc2e" id="arr-sc">النقاط: 0 &nbsp;|&nbsp; ❤️❤️❤️</div><canvas id="arr-cv" width="340" height="340" style="border:2px solid rgba(254,188,46,0.3);border-radius:8px;touch-action:none;"></canvas><div class="game-hint">انقر / اضغط على الأسهم لإزالتها قبل أن تصطدم! | Space للبدء</div></div>`;
+  const canvas=document.getElementById('arr-cv');
+  const ctx=canvas.getContext('2d');
+  const W=340,H=340;
+  let arrows=[],score=0,lives=3,running=false,spawnT=1800,lastSpawn=0;
+  const DIRS=[{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];
+  function updateHUD(){const el=document.getElementById('arr-sc');if(el)el.innerHTML='النقاط: '+score+' &nbsp;|&nbsp; '+'❤️'.repeat(lives)+'🖤'.repeat(Math.max(0,3-lives));}
+  function spawnPair(ts){
+    const d1=DIRS[Math.floor(Math.random()*4)];
+    let d2;do{d2=DIRS[Math.floor(Math.random()*4)];}while(d2===d1);
+    const cx=70+Math.random()*(W-140),cy=70+Math.random()*(H-140);
+    const sp=1.4+score*0.04;
+    const emojis=['➤','➤'];
+    arrows.push({x:cx-d1.dx*180,y:cy-d1.dy*180,dx:d1.dx*sp,dy:d1.dy*sp,r:18,alive:true});
+    arrows.push({x:cx+d2.dx*180,y:cy+d2.dy*180,dx:-d2.dx*sp,dy:-d2.dy*sp,r:18,alive:true});
+    lastSpawn=ts;spawnT=Math.max(700,spawnT-25);
+  }
+  function checkColl(){
+    for(let i=0;i<arrows.length-1;i++){
+      for(let j=i+1;j<arrows.length;j++){
+        const a=arrows[i],b=arrows[j];
+        const dx=a.x-b.x,dy=a.y-b.y;
+        if(Math.sqrt(dx*dx+dy*dy)<24){lives--;updateHUD();arrows.splice(j,1);arrows.splice(i,1);if(lives<=0){endGame();}return;}
+      }
+    }
+  }
+  function endGame(){arrowsRunning=false;cancelAnimationFrame(arrowsRaf);ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff5f57';ctx.font='bold 20px Segoe UI';ctx.textAlign='center';ctx.fillText('انتهت اللعبة!',W/2,H/2-20);ctx.fillStyle='#fff';ctx.font='14px Segoe UI';ctx.fillText('النقاط: '+score,W/2,H/2+10);ctx.fillText('Space للإعادة',W/2,H/2+34);}
+  function loop(ts){
+    if(!arrowsRunning)return;
+    ctx.fillStyle='#07101c';ctx.fillRect(0,0,W,H);
+    // grid
+    ctx.strokeStyle='rgba(254,188,46,0.04)';ctx.lineWidth=1;
+    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+    for(let i=0;i<H;i+=40){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke();}
+    if(ts-lastSpawn>spawnT)spawnPair(ts);
+    arrows=arrows.filter(a=>a.x>-40&&a.x<W+40&&a.y>-40&&a.y<H+40);
+    arrows.forEach(a=>{a.x+=a.dx;a.y+=a.dy;ctx.fillStyle='#febc2e';ctx.font='bold 22px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('➤',a.x,a.y);});
+    checkColl();
+    arrowsRaf=requestAnimationFrame(loop);
+  }
+  function startGame(){arrows=[];score=0;lives=3;spawnT=1800;lastSpawn=0;arrowsRunning=true;updateHUD();arrowsRaf=requestAnimationFrame(loop);}
+  // Show start screen
+  ctx.fillStyle='#07101c';ctx.fillRect(0,0,W,H);ctx.fillStyle='#febc2e';ctx.font='bold 15px Segoe UI';ctx.textAlign='center';ctx.fillText('اضغط Space أو اضغط للبدء',W/2,H/2);
+  // click to remove arrow
+  function handleClick(cx,cy){
+    if(!arrowsRunning){startGame();return;}
+    for(let i=arrows.length-1;i>=0;i--){
+      const a=arrows[i];
+      if(Math.abs(a.x-cx)<26&&Math.abs(a.y-cy)<26){arrows.splice(i,1);score++;updateHUD();break;}
+    }
+  }
+  canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect();handleClick(e.clientX-r.left,e.clientY-r.top);});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();handleClick(e.changedTouches[0].clientX-r.left,e.changedTouches[0].clientY-r.top);},{passive:false});
+  document.addEventListener('keydown',function ak(e){
+    if(!document.getElementById('arr-cv'))return document.removeEventListener('keydown',ak);
+    if(e.code==='Space'){e.preventDefault();if(!arrowsRunning)startGame();}
+  });
+}
+function stopArrows(){arrowsRunning=false;cancelAnimationFrame(arrowsRaf);}
+
+// ===== TETRIS =====
+let tetrisIv=null;
+function buildTetris(wc){
+  wc.style.cssText='display:flex;flex-direction:column;height:100%;background:#07101c;';
+  wc.innerHTML=`<div class="tetris-wrap"><div class="game-score" style="color:#28c840" id="tet-sc">النقاط: 0</div><canvas id="tet-cv" width="200" height="400" style="border:2px solid rgba(40,200,64,0.3);border-radius:8px;touch-action:none;"></canvas><div class="game-hint">← → للحركة | ↑ للتدوير | ↓ للتسريع | Space للبدء</div></div>`;
+  const canvas=document.getElementById('tet-cv');
+  const ctx=canvas.getContext('2d');
+  const CW=10,CH=20,SZ=20;
+  const PIECES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0],[1,0],[1,1]],[[0,1],[0,1],[1,1]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]]];
+  const COLORS=['#4db3ff','#febc2e','#c792ea','#ff5f57','#0d6efd','#3ddc84','#ff79c6'];
+  let board=Array.from({length:CH},()=>Array(CW).fill(0));
+  let cur=null,score=0,running=false,started=false;
+  function newPiece(){const idx=Math.floor(Math.random()*PIECES.length);return{shape:JSON.parse(JSON.stringify(PIECES[idx])),color:COLORS[idx],x:3,y:0};}
+  function valid(p,shape){return shape.every((row,dy)=>row.every((cell,dx)=>!cell||((p.y+dy>=0&&p.y+dy<CH&&p.x+dx>=0&&p.x+dx<CW&&!board[p.y+dy][p.x+dx]))));}
+  function place(){cur.shape.forEach((row,dy)=>row.forEach((cell,dx)=>{if(cell)board[cur.y+dy][cur.x+dx]=cur.color;}));let cl=0;for(let r=CH-1;r>=0;r--){if(board[r].every(c=>c)){board.splice(r,1);board.unshift(Array(CW).fill(0));cl++;r++;}}score+=cl*100;document.getElementById('tet-sc').textContent='النقاط: '+score;cur=newPiece();if(!valid(cur,cur.shape)){running=false;clearInterval(tetrisIv);ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,CW*SZ,CH*SZ);ctx.fillStyle='#ff5f57';ctx.font='bold 16px Segoe UI';ctx.textAlign='center';ctx.fillText('Game Over!',CW*SZ/2,CH*SZ/2-15);ctx.fillStyle='#fff';ctx.font='13px Segoe UI';ctx.fillText('النقاط: '+score,CW*SZ/2,CH*SZ/2+8);ctx.fillText('Space للإعادة',CW*SZ/2,CH*SZ/2+28);}}
+  function draw(){ctx.fillStyle='#07101c';ctx.fillRect(0,0,CW*SZ,CH*SZ);board.forEach((row,y)=>row.forEach((cell,x)=>{if(cell){ctx.fillStyle=cell;ctx.fillRect(x*SZ+1,y*SZ+1,SZ-2,SZ-2);}}));if(cur){ctx.fillStyle=cur.color;cur.shape.forEach((row,dy)=>row.forEach((cell,dx)=>{if(cell)ctx.fillRect((cur.x+dx)*SZ+1,(cur.y+dy)*SZ+1,SZ-2,SZ-2);}));}if(!started){ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,CW*SZ,CH*SZ);ctx.fillStyle='#28c840';ctx.font='bold 13px Segoe UI';ctx.textAlign='center';ctx.fillText('Space للبدء',CW*SZ/2,CH*SZ/2);}}
+  function step(){if(!running)return;if(!cur)cur=newPiece();const nxt={...cur,y:cur.y+1};if(valid(nxt,nxt.shape))cur=nxt;else place();draw();}
+  draw();
+  function startGame(){board=Array.from({length:CH},()=>Array(CW).fill(0));score=0;document.getElementById('tet-sc').textContent='النقاط: 0';cur=newPiece();running=true;started=true;clearInterval(tetrisIv);tetrisIv=setInterval(step,400);}
+  function rotate(shape){return shape[0].map((_,i)=>shape.map(row=>row[i]).reverse());}
+  // Touch
+  let ttx=0;
+  canvas.addEventListener('touchstart',e=>{ttx=e.touches[0].clientX;},{passive:true});
+  canvas.addEventListener('touchend',e=>{
+    if(!running)return;
+    const dx=e.changedTouches[0].clientX-ttx;
+    if(Math.abs(dx)<10){const rot=rotate(cur.shape);if(valid({...cur,shape:rot},rot))cur={...cur,shape:rot};}
+    else if(dx>20){const n={...cur,x:cur.x+1};if(valid(n,n.shape))cur=n;}
+    else if(dx<-20){const n={...cur,x:cur.x-1};if(valid(n,n.shape))cur=n;}
+    draw();
+  },{passive:true});
+  document.addEventListener('keydown',function tk(e){
+    if(!document.getElementById('tet-cv'))return document.removeEventListener('keydown',tk);
+    if(e.code==='Space'){e.preventDefault();if(!running)startGame();return;}
+    if(!running||!cur)return;
+    if(e.key==='ArrowLeft'){const n={...cur,x:cur.x-1};if(valid(n,n.shape))cur=n;}
+    else if(e.key==='ArrowRight'){const n={...cur,x:cur.x+1};if(valid(n,n.shape))cur=n;}
+    else if(e.key==='ArrowDown'){const n={...cur,y:cur.y+1};if(valid(n,n.shape))cur=n;else place();}
+    else if(e.key==='ArrowUp'){const rot=rotate(cur.shape);if(valid({...cur,shape:rot},rot))cur={...cur,shape:rot};}
+    draw();
+  });
+}
+function stopTetris(){clearInterval(tetrisIv);}
+
+// ===== ANDROID SYSTEM =====
+const andWallpapers=[
+  'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
+  'linear-gradient(135deg,#0d0d0d,#1a0028,#2d0057)',
+  'linear-gradient(135deg,#001a0d,#003320,#004d30)',
+  'linear-gradient(135deg,#1a0000,#330000,#4d0000)',
+  'linear-gradient(135deg,#0a0a1a,#1a2a4a,#0a3a6a)',
+];
+let andWallIdx=0, andClockIv=null, andCurrentApp=null;
+const andNotifications=[];
+const andApps=[
+  {id:'settings',icon:'⚙️',label:'الإعدادات',bg:'#607D8B'},
+  {id:'calculator',icon:'🧮',label:'الحاسبة',bg:'#FF5722'},
+  {id:'notes',icon:'📝',label:'الملاحظات',bg:'#FFC107'},
+  {id:'files',icon:'📁',label:'الملفات',bg:'#2196F3'},
+  {id:'music',icon:'🎵',label:'الموسيقى',bg:'#E91E63'},
+  {id:'games',icon:'🎮',label:'الألعاب',bg:'#4CAF50'},
+  {id:'gallery',icon:'🖼️',label:'المعرض',bg:'#9C27B0'},
+  {id:'store',icon:'🏪',label:'المتجر',bg:'#00BCD4'},
+];
+
+function enterAndroid(){
+  const u=DB.users[DB.currentUser];
+  andWallIdx=u.wallIdx||0;
+  document.getElementById('and-wallpaper').style.background=andWallpapers[andWallIdx];
+  buildAndHome();
+  andUpdateClock();
+  andClockIv=setInterval(andUpdateClock,1000);
+  // Add welcome notification
+  setTimeout(()=>andAddNotif('TilOS','مرحباً '+u.name+'! 👋'),500);
+  // Swipe down for notifications
+  let sy=0;
+  const screen=document.getElementById('and-screen');
+  screen.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+  screen.addEventListener('touchend',e=>{
+    const dy=e.changedTouches[0].clientY-sy;
+    if(dy>60&&!document.getElementById('and-notif-panel').classList.contains('open')) andOpenNotif();
+    else if(dy<-60) andCloseNotif();
+  },{passive:true});
+  // Mouse swipe
+  screen.addEventListener('mousedown',e=>{sy=e.clientY;});
+  screen.addEventListener('mouseup',e=>{
+    const dy=e.clientY-sy;
+    if(dy>60) andOpenNotif();
+    else if(dy<-60) andCloseNotif();
+  });
+}
+
+function stopAndroid(){clearInterval(andClockIv);}
+
+function andUpdateClock(){
+  const n=new Date();
+  const h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');
+  const el=document.getElementById('and-time');if(el)el.textContent=h+':'+m;
+  const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const dw=document.getElementById('and-date-widget');
+  if(dw)dw.innerHTML=`<div class="and-big-time">${h}:${m}</div><div class="and-big-date">${days[n.getDay()]} ${n.getDate()} ${months[n.getMonth()]}</div>`;
+}
+
+function buildAndHome(){
+  const grid=document.getElementById('and-apps-grid');
+  grid.innerHTML=andApps.map(a=>`
+    <div class="and-app-icon" onclick="andOpenApp('${a.id}')">
+      <div class="and-icon-box" style="background:${a.bg}">${a.icon}</div>
+      <span>${a.label}</span>
+    </div>`).join('');
+}
+
+function andOpenApp(id){
+  andCurrentApp=id;
+  const screen=document.getElementById('and-app-screen');
+  const content=document.getElementById('and-app-content');
+  const title=document.getElementById('and-app-title');
+  const apps={
+    settings:{t:'الإعدادات',fn:andSettingsUI},
+    calculator:{t:'الحاسبة',fn:andCalcUI},
+    notes:{t:'الملاحظات',fn:andNotesUI},
+    files:{t:'الملفات',fn:andFilesUI},
+    music:{t:'الموسيقى',fn:andMusicUI},
+    games:{t:'الألعاب',fn:andGamesUI},
+    gallery:{t:'المعرض',fn:andGalleryUI},
+    store:{t:'المتجر',fn:andStoreUI},
+    phone:{t:'الهاتف',fn:andPhoneUI},
+    messages:{t:'الرسائل',fn:andMessagesUI},
+    camera:{t:'الكاميرا',fn:andCameraUI},
+    browser:{t:'المتصفح',fn:andBrowserUI},
+  };
+  const app=apps[id];if(!app)return;
+  title.textContent=app.t;
+  content.innerHTML='';
+  app.fn(content);
+  screen.style.display='flex';
+}
+
+function andGoHome(){
+  document.getElementById('and-app-screen').style.display='none';
+  andCurrentApp=null;
+  andCloseNotif();
+}
+
+function andRecents(){andGoHome();}
+
+function andOpenNotif(){
+  const panel=document.getElementById('and-notif-panel');
+  buildAndNotifs();
+  panel.classList.add('open');
+}
+function andCloseNotif(){document.getElementById('and-notif-panel').classList.remove('open');}
+function andAddNotif(app,msg){
+  andNotifications.unshift({app,msg,time:new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})});
+  if(andNotifications.length>10)andNotifications.pop();
+}
+function buildAndNotifs(){
+  const list=document.getElementById('and-notif-list');
+  list.innerHTML=andNotifications.length?andNotifications.map(n=>`<div class="and-notif-item"><div class="nn-app">${n.app} · ${n.time}</div><div class="nn-msg">${n.msg}</div></div>`).join(''):'<div style="color:#888;text-align:center;font-size:13px;padding:20px">لا توجد إشعارات</div>';
+}
+
+// Android App UIs
+function andSettingsUI(c){
+  const u=DB.users[DB.currentUser];
+  c.innerHTML=`<div class="and-content">
+    <div class="and-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="width:50px;height:50px;border-radius:25px;background:#1a73e8;display:flex;align-items:center;justify-content:center;font-size:24px">👤</div>
+        <div><div style="font-size:15px;font-weight:600;color:#333">${u.name}</div><div style="font-size:12px;color:#888">${u.email}</div></div>
+      </div>
     </div>
-    <div class="music-body">
-      <div class="music-section">
-        <div class="music-stitle">أضف موسيقاك</div>
-        <div class="upload-btn" onclick="document.getElementById('music-file-input').click()">
-          ➕ اضغط لإضافة أغاني من جهازك
-        </div>
-        <div id="user-songs-list"></div>
-      </div>
-      <div class="music-section">
-        <div class="music-stitle">أغاني TilMusic</div>
-        <div id="builtin-songs">
-          ${builtinSongs.map((s,i)=>`<div class="song-item" id="song-${i}" onclick="playSong(${i},false)">
-            <span class="song-num">${i+1}</span>
-            <span class="song-icon">${s.emoji}</span>
-            <div class="song-info"><div class="song-name">${s.name}</div><div class="song-artist">${s.artist}</div></div>
-            <span class="song-dur">${s.dur}</span>
-          </div>`).join('')}
-        </div>
-      </div>
+    <div class="and-card">
+      <div class="and-card-title">الجهاز</div>
+      <div class="and-setting-row"><span>الخلفية</span><button onclick="andChangeWall()" style="background:#1a73e8;border:none;border-radius:6px;color:#fff;padding:5px 12px;font-size:12px;cursor:pointer">تغيير</button></div>
+      <div class="and-setting-row"><span>الوضع الداكن</span><button class="and-toggle" onclick="this.classList.toggle('on')"></button></div>
+      <div class="and-setting-row"><span>الإشعارات</span><button class="and-toggle on" onclick="this.classList.toggle('on')"></button></div>
+      <div class="and-setting-row"><span>الصوت</span><button class="and-toggle on" onclick="this.classList.toggle('on')"></button></div>
     </div>
-    <div class="music-player">
-      <div class="player-info">
-        <div class="player-art" id="player-art">🎵</div>
-        <div><div class="player-song" id="player-song">اختر أغنية</div><div class="player-artist" id="player-artist">TilMusic</div></div>
-      </div>
-      <div class="player-controls">
-        <button class="pc-btn" onclick="prevSong()">⏮</button>
-        <button class="pc-btn play" id="play-btn" onclick="togglePlay()">▶️</button>
-        <button class="pc-btn" onclick="nextSong()">⏭</button>
-      </div>
-      <div class="progress-wrap">
-        <span class="prog-time" id="prog-cur">0:00</span>
-        <div class="prog-bar" onclick="seekMusic(event,this)">
-          <div class="prog-fill" id="prog-fill" style="width:0%"><div class="prog-dot"></div></div>
-        </div>
-        <span class="prog-time" id="prog-total" style="text-align:right">0:00</span>
-      </div>
+    <div class="and-card">
+      <div class="and-card-title">النظام</div>
+      <div class="and-setting-row"><span>الإصدار</span><span style="color:#888;font-size:12px">TilOS Android 1.0</span></div>
+      <div class="and-setting-row"><span>المخزن</span><span style="color:#888;font-size:12px">128 GB</span></div>
+    </div>
+    <button class="and-btn" style="background:#f44336;margin-top:4px" onclick="doLogout()">تسجيل الخروج 🚪</button>
+  </div>`;
+}
+function andChangeWall(){andWallIdx=(andWallIdx+1)%andWallpapers.length;document.getElementById('and-wallpaper').style.background=andWallpapers[andWallIdx];andAddNotif('الإعدادات','تم تغيير الخلفية ✨');}
+
+function andCalcUI(c){
+  c.style.background='#263238';
+  c.innerHTML=`<div style="padding:0">
+    <div id="and-cdisp" style="background:#1C2327;color:#80CBC4;font-size:36px;text-align:right;padding:20px 16px;min-height:80px;font-family:'Courier New',monospace;word-break:break-all">0</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#37474F">
+      <button style="padding:18px;background:#455A64;color:#CFD8DC;font-size:18px;border:none;cursor:pointer" onclick="cf('C')">C</button>
+      <button style="padding:18px;background:#455A64;color:#CFD8DC;font-size:18px;border:none;cursor:pointer" onclick="cf('+/-')">±</button>
+      <button style="padding:18px;background:#455A64;color:#CFD8DC;font-size:18px;border:none;cursor:pointer" onclick="cf('%')">%</button>
+      <button style="padding:18px;background:#FF8F00;color:#fff;font-size:20px;border:none;cursor:pointer" onclick="co('/')">÷</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('7')">7</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('8')">8</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('9')">9</button>
+      <button style="padding:18px;background:#FF8F00;color:#fff;font-size:20px;border:none;cursor:pointer" onclick="co('*')">×</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('4')">4</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('5')">5</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('6')">6</button>
+      <button style="padding:18px;background:#FF8F00;color:#fff;font-size:20px;border:none;cursor:pointer" onclick="co('-')">−</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('1')">1</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('2')">2</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('3')">3</button>
+      <button style="padding:18px;background:#FF8F00;color:#fff;font-size:20px;border:none;cursor:pointer" onclick="co('+')">+</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer;grid-column:span 2" onclick="cn('0')">0</button>
+      <button style="padding:18px;background:#37474F;color:#ECEFF1;font-size:20px;border:none;cursor:pointer" onclick="cn('.')">.</button>
+      <button style="padding:18px;background:#00BFA5;color:#fff;font-size:20px;border:none;cursor:pointer" onclick="ceq()">=</button>
     </div>
   </div>`;
-  renderUserSongs();
+  // override display for android
+  const origCd=window.cd;
+  window.cd=function(){const el=document.getElementById('and-cdisp')||document.getElementById('cdisp');if(el)el.textContent=cv;};
 }
-function renderUserSongs(){
-  const el=document.getElementById('user-songs-list');
-  if(!el)return;
-  if(userSongs.length===0){el.innerHTML='<div style="color:#333;font-size:12px;padding:8px 0;">لم تضف أغاني بعد</div>';return;}
-  el.innerHTML=userSongs.map((s,i)=>`<div class="song-item" id="usong-${i}" onclick="playUserSong(${i})">
-    <span class="song-num">${i+1}</span><span class="song-icon">🎵</span>
-    <div class="song-info"><div class="song-name">${s.name}</div><div class="song-artist">ملفاتي</div></div>
-    <span class="song-dur">—</span>
-  </div>`).join('');
+
+function andNotesUI(c){
+  const u=DB.users[DB.currentUser];
+  c.innerHTML=`<div class="and-content">
+    <textarea style="width:100%;min-height:400px;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:14px;outline:none;resize:vertical;font-family:inherit" placeholder="اكتب ملاحظاتك هنا..." oninput="if(DB.currentUser){DB.users[DB.currentUser].notepad=this.value;saveDB();}">${u.notepad||''}</textarea>
+  </div>`;
 }
-document.getElementById('music-file-input').addEventListener('change',function(e){
-  Array.from(e.target.files).forEach(file=>{
-    userSongs.push({name:file.name.replace(/\.[^.]+$/,''),file});
+
+function andFilesUI(c){
+  const files=[{i:'📁',n:'الصور'},{i:'📁',n:'التنزيلات'},{i:'📁',n:'الموسيقى'},{i:'📁',n:'المستندات'},{i:'📄',n:'ملاحظات.txt'},{i:'🎵',n:'music.mp3'},{i:'🖼️',n:'صورة.jpg'}];
+  c.innerHTML=`<div class="and-content"><div class="and-card"><div class="and-card-title">التخزين</div><div style="background:#e0e0e0;border-radius:4px;height:6px;margin:8px 0"><div style="width:45%;height:100%;background:#1a73e8;border-radius:4px"></div></div><div style="font-size:11px;color:#888">45 GB مستخدم من 128 GB</div></div><div class="and-card"><div class="and-card-title">الملفات</div>${files.map(f=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5"><span style="font-size:24px">${f.i}</span><span style="font-size:13px;color:#333">${f.n}</span></div>`).join('')}</div></div>`;
+}
+
+function andMusicUI(c){
+  c.innerHTML=`<div class="and-content">
+    ${builtinSongs.map((s,i)=>`<div class="and-card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="playSong(${i},false)">
+      <div style="width:44px;height:44px;border-radius:8px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:22px">${s.emoji}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600;color:#333">${s.name}</div><div style="font-size:11px;color:#888">${s.artist} · ${s.dur}</div></div>
+      <span style="font-size:20px;color:#E91E63">▶</span>
+    </div>`).join('')}
+    <div class="and-card" style="text-align:center;cursor:pointer;border:2px dashed #E91E63" onclick="document.getElementById('music-file-input').click()">
+      <div style="color:#E91E63;font-size:13px">➕ إضافة موسيقى من الجهاز</div>
+    </div>
+  </div>`;
+}
+
+function andGamesUI(c){
+  const games=[
+    {id:'snake',i:'🐍',n:'Snake',d:'كلاسيكية'},
+    {id:'tetris',i:'🟦',n:'Tetris',d:'كلاسيكية'},
+    {id:'arrows',i:'🏹',n:'لعبة الأسهم',d:'فك الأسهم'},
+  ];
+  c.innerHTML=`<div class="and-content">${games.map(g=>`
+    <div class="and-card" style="cursor:pointer" onclick="andLaunchGame('${g.id}')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:48px;height:48px;border-radius:12px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:28px">${g.i}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:#333">${g.n}</div>
+          <div style="font-size:11px;color:#888">${g.d}</div>
+        </div>
+        <span style="color:#4CAF50;font-size:20px">▶</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+function andLaunchGame(id){
+  const c=document.getElementById('and-app-content');
+  const title=document.getElementById('and-app-title');
+  const names={snake:'🐍 Snake',tetris:'🟦 Tetris',arrows:'🏹 الأسهم'};
+  title.textContent=names[id]||id;
+  c.innerHTML='';
+  c.style.background='#07101c';
+  c.style.display='flex';
+  c.style.flexDirection='column';
+  c.style.alignItems='center';
+  c.style.padding='10px';
+  if(id==='snake'){
+    const score=document.createElement('div');score.style.cssText='color:#3ddc84;font-size:14px;font-weight:700;margin-bottom:8px';score.id='and-snake-sc';score.textContent='النقاط: 0';
+    const canvas=document.createElement('canvas');canvas.width=280;canvas.height=280;canvas.style.cssText='border:2px solid rgba(61,220,132,0.3);border-radius:8px;touch-action:none;max-width:100%';canvas.id='and-snake-cv';
+    const hint=document.createElement('div');hint.style.cssText='color:#444;font-size:11px;margin-top:8px;text-align:center';hint.textContent='اسحب للتحكم | اضغط للبدء';
+    c.appendChild(score);c.appendChild(canvas);c.appendChild(hint);
+    andRunSnake(canvas,score);
+  } else if(id==='tetris'){
+    const score=document.createElement('div');score.style.cssText='color:#28c840;font-size:14px;font-weight:700;margin-bottom:8px';score.id='and-tet-sc';score.textContent='النقاط: 0';
+    const canvas=document.createElement('canvas');canvas.width=180;canvas.height=360;canvas.style.cssText='border:2px solid rgba(40,200,64,0.3);border-radius:8px;touch-action:none;max-width:100%';canvas.id='and-tet-cv';
+    const hint=document.createElement('div');hint.style.cssText='color:#444;font-size:11px;margin-top:8px;text-align:center';hint.textContent='اسحب للحركة | اضغط للتدوير | Space للبدء';
+    c.appendChild(score);c.appendChild(canvas);c.appendChild(hint);
+    andRunTetris(canvas,score);
+  } else if(id==='arrows'){
+    const score=document.createElement('div');score.style.cssText='color:#febc2e;font-size:14px;font-weight:700;margin-bottom:8px';score.id='and-arr-sc';score.textContent='النقاط: 0 | ❤️❤️❤️';
+    const canvas=document.createElement('canvas');canvas.width=300;canvas.height=300;canvas.style.cssText='border:2px solid rgba(254,188,46,0.3);border-radius:8px;touch-action:none;max-width:100%';canvas.id='and-arr-cv';
+    const hint=document.createElement('div');hint.style.cssText='color:#444;font-size:11px;margin-top:8px;text-align:center';hint.textContent='اضغط على الأسهم لإزالتها | اضغط للبدء';
+    c.appendChild(score);c.appendChild(canvas);c.appendChild(hint);
+    andRunArrows(canvas,score);
+  }
+}
+
+// Android Snake
+let andSnakeIv=null;
+function andRunSnake(canvas,scoreEl){
+  const ctx=canvas.getContext('2d');
+  const SZ=14,COLS=20,ROWS=20;
+  let snake=[{x:10,y:10}],dir={x:1,y:0},food={x:5,y:5},score=0,running=false;
+  function rndFood(){food={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)};}
+  function draw(){
+    ctx.fillStyle='#07101c';ctx.fillRect(0,0,280,280);
+    ctx.fillStyle='#ff5f57';ctx.fillRect(food.x*SZ,food.y*SZ,SZ-1,SZ-1);
+    snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#3ddc84':'#28a86a';ctx.fillRect(s.x*SZ,s.y*SZ,SZ-1,SZ-1);});
+    if(!running){ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,280,280);ctx.fillStyle='#3ddc84';ctx.font='bold 14px Segoe UI';ctx.textAlign='center';ctx.fillText('اضغط للبدء',140,140);}
+  }
+  function step(){
+    const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+    if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS||snake.some(s=>s.x===h.x&&s.y===h.y)){
+      running=false;clearInterval(andSnakeIv);
+      ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,280,280);
+      ctx.fillStyle='#ff5f57';ctx.font='bold 16px Segoe UI';ctx.textAlign='center';ctx.fillText('انتهت!',140,120);
+      ctx.fillStyle='#fff';ctx.font='13px Segoe UI';ctx.fillText('النقاط: '+score,140,145);ctx.fillText('اضغط للإعادة',140,168);return;
+    }
+    snake.unshift(h);
+    if(h.x===food.x&&h.y===food.y){score++;if(scoreEl)scoreEl.textContent='النقاط: '+score;rndFood();}else snake.pop();
+    draw();
+  }
+  function start(){snake=[{x:10,y:10}];dir={x:1,y:0};score=0;if(scoreEl)scoreEl.textContent='النقاط: 0';rndFood();running=true;clearInterval(andSnakeIv);andSnakeIv=setInterval(step,130);}
+  draw();
+  let sx=0,sy2=0;
+  canvas.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy2=e.touches[0].clientY;if(!running)start();},{passive:true});
+  canvas.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy2;
+    if(Math.abs(dx)>Math.abs(dy)){if(dx>15&&dir.x!==-1)dir={x:1,y:0};else if(dx<-15&&dir.x!==1)dir={x:-1,y:0};}
+    else{if(dy>15&&dir.y!==-1)dir={x:0,y:1};else if(dy<-15&&dir.y!==1)dir={x:0,y:-1};}
+  },{passive:true});
+  canvas.addEventListener('click',()=>{if(!running)start();});
+}
+
+// Android Tetris
+let andTetIv=null;
+function andRunTetris(canvas,scoreEl){
+  const ctx=canvas.getContext('2d');
+  const CW=9,CH=18,SZ=20;
+  const PIECES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0],[1,0],[1,1]],[[0,1],[0,1],[1,1]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]]];
+  const COLORS=['#4db3ff','#febc2e','#c792ea','#ff5f57','#0d6efd','#3ddc84','#ff79c6'];
+  let board=Array.from({length:CH},()=>Array(CW).fill(0)),cur=null,score=0,running=false,started=false;
+  function np(){const i=Math.floor(Math.random()*PIECES.length);return{shape:JSON.parse(JSON.stringify(PIECES[i])),color:COLORS[i],x:3,y:0};}
+  function valid(p,sh){return sh.every((row,dy)=>row.every((cell,dx)=>!cell||((p.y+dy>=0&&p.y+dy<CH&&p.x+dx>=0&&p.x+dx<CW&&!board[p.y+dy][p.x+dx]))));}
+  function place(){cur.shape.forEach((row,dy)=>row.forEach((cell,dx)=>{if(cell)board[cur.y+dy][cur.x+dx]=cur.color;}));let cl=0;for(let r=CH-1;r>=0;r--){if(board[r].every(c=>c)){board.splice(r,1);board.unshift(Array(CW).fill(0));cl++;r++;}}score+=cl*100;if(scoreEl)scoreEl.textContent='النقاط: '+score;cur=np();if(!valid(cur,cur.shape)){running=false;clearInterval(andTetIv);draw();}}
+  function draw(){ctx.fillStyle='#07101c';ctx.fillRect(0,0,CW*SZ,CH*SZ);board.forEach((row,y)=>row.forEach((cell,x)=>{if(cell){ctx.fillStyle=cell;ctx.fillRect(x*SZ+1,y*SZ+1,SZ-2,SZ-2);}}));if(cur){ctx.fillStyle=cur.color;cur.shape.forEach((row,dy)=>row.forEach((cell,dx)=>{if(cell)ctx.fillRect((cur.x+dx)*SZ+1,(cur.y+dy)*SZ+1,SZ-2,SZ-2);}));}if(!started){ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,CW*SZ,CH*SZ);ctx.fillStyle='#28c840';ctx.font='bold 13px Segoe UI';ctx.textAlign='center';ctx.fillText('اضغط للبدء',CW*SZ/2,CH*SZ/2);}}
+  function step(){if(!running)return;const n={...cur,y:cur.y+1};if(valid(n,n.shape))cur=n;else place();draw();}
+  function rot(sh){return sh[0].map((_,i)=>sh.map(r=>r[i]).reverse());}
+  function start(){board=Array.from({length:CH},()=>Array(CW).fill(0));score=0;if(scoreEl)scoreEl.textContent='النقاط: 0';cur=np();running=true;started=true;clearInterval(andTetIv);andTetIv=setInterval(step,400);}
+  draw();
+  let ttx=0;
+  canvas.addEventListener('touchstart',e=>{ttx=e.touches[0].clientX;if(!started)start();},{passive:true});
+  canvas.addEventListener('touchend',e=>{
+    if(!running)return;const dx=e.changedTouches[0].clientX-ttx;
+    if(Math.abs(dx)<10){const r=rot(cur.shape);if(valid({...cur,shape:r},r))cur={...cur,shape:r};}
+    else if(dx>20){const n={...cur,x:cur.x+1};if(valid(n,n.shape))cur=n;}
+    else if(dx<-20){const n={...cur,x:cur.x-1};if(valid(n,n.shape))cur=n;}
+    draw();
+  },{passive:true});
+  canvas.addEventListener('click',()=>{if(!running)start();});
+  document.addEventListener('keydown',function andTetKey(e){
+    if(!document.getElementById('and-tet-cv'))return document.removeEventListener('keydown',andTetKey);
+    if(e.code==='Space'){e.preventDefault();if(!running)start();return;}
+    if(!running||!cur)return;
+    if(e.key==='ArrowLeft'){const n={...cur,x:cur.x-1};if(valid(n,n.shape))cur=n;}
+    else if(e.key==='ArrowRight'){const n={...cur,x:cur.x+1};if(valid(n,n.shape))cur=n;}
+    else if(e.key==='ArrowDown'){const n={...cur,y:cur.y+1};if(valid(n,n.shape))cur=n;else place();}
+    else if(e.key==='ArrowUp'){const r=rot(cur.shape);if(valid({...cur,shape:r},r))cur={...cur,shape:r};}
+    draw();
   });
-  renderUserSongs();
-  this.value='';
-});
-function playSong(idx,isUser){
-  document.querySelectorAll('.song-item').forEach(el=>el.classList.remove('playing'));
-  if(audio){audio.pause();audio=null;}
-  clearInterval(progInterval);
-  if(isUser){
-    const s=userSongs[idx];if(!s)return;
-    const id=document.getElementById('usong-'+idx);if(id)id.classList.add('playing');
-    audio=new Audio(URL.createObjectURL(s.file));
-    updatePlayerUI(s.name,'ملفاتي','🎵');
-  } else {
-    const s=builtinSongs[idx];if(!s)return;
-    const id=document.getElementById('song-'+idx);if(id)id.classList.add('playing');
-    updatePlayerUI(s.name,s.artist,s.emoji);
-    document.getElementById('play-btn').textContent='⏸️';
-    musicPlaying=true;currentSong={idx,isUser:false};
-    startFakeProgress(s.dur);return;
+}
+
+// Android Arrows
+let andArrRaf=null,andArrRunning=false;
+function andRunArrows(canvas,scoreEl){
+  const ctx=canvas.getContext('2d');
+  const W=300,H=300;
+  let arrows=[],score=0,lives=3,spawnT=1800,lastSpawn=0;
+  function updateHUD(){if(scoreEl)scoreEl.textContent='النقاط: '+score+' | '+'❤️'.repeat(lives)+'🖤'.repeat(Math.max(0,3-lives));}
+  function spawnPair(ts){
+    const DIRS=[{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];
+    const d1=DIRS[Math.floor(Math.random()*4)];let d2;do{d2=DIRS[Math.floor(Math.random()*4)];}while(d2===d1);
+    const cx=60+Math.random()*(W-120),cy=60+Math.random()*(H-120),sp=1.3+score*0.04;
+    arrows.push({x:cx-d1.dx*160,y:cy-d1.dy*160,dx:d1.dx*sp,dy:d1.dy*sp});
+    arrows.push({x:cx+d2.dx*160,y:cy+d2.dy*160,dx:-d2.dx*sp,dy:-d2.dy*sp});
+    lastSpawn=ts;spawnT=Math.max(700,spawnT-20);
   }
-  if(audio){
-    audio.play().catch(()=>{});
-    audio.addEventListener('loadedmetadata',()=>{
-      const tot=audio.duration;
-      document.getElementById('prog-total').textContent=fmtTime(tot);
-    });
-    progInterval=setInterval(()=>{
-      if(!audio)return;
-      const pct=audio.duration?(audio.currentTime/audio.duration)*100:0;
-      const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
-      const pc=document.getElementById('prog-cur');if(pc)pc.textContent=fmtTime(audio.currentTime);
-    },500);
-    musicPlaying=true;currentSong={idx,isUser:true};
-    document.getElementById('play-btn').textContent='⏸️';
+  function loop(ts){
+    if(!andArrRunning)return;
+    ctx.fillStyle='#07101c';ctx.fillRect(0,0,W,H);
+    if(ts-lastSpawn>spawnT)spawnPair(ts);
+    arrows=arrows.filter(a=>a.x>-40&&a.x<W+40&&a.y>-40&&a.y<H+40);
+    arrows.forEach(a=>{a.x+=a.dx;a.y+=a.dy;ctx.fillStyle='#febc2e';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('➤',a.x,a.y);});
+    for(let i=0;i<arrows.length-1;i++){for(let j=i+1;j<arrows.length;j++){const a=arrows[i],b=arrows[j];const dx=a.x-b.x,dy=a.y-b.y;if(Math.sqrt(dx*dx+dy*dy)<22){lives--;updateHUD();arrows.splice(j,1);arrows.splice(i,1);if(lives<=0){andArrRunning=false;ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff5f57';ctx.font='bold 18px Segoe UI';ctx.textAlign='center';ctx.fillText('انتهت!',W/2,H/2-15);ctx.fillStyle='#fff';ctx.font='13px Segoe UI';ctx.fillText('النقاط: '+score,W/2,H/2+10);ctx.fillText('اضغط للإعادة',W/2,H/2+30);return;}break;}}}
+    andArrRaf=requestAnimationFrame(loop);
   }
+  function start(){arrows=[];score=0;lives=3;spawnT=1800;lastSpawn=0;andArrRunning=true;updateHUD();andArrRaf=requestAnimationFrame(loop);}
+  ctx.fillStyle='#07101c';ctx.fillRect(0,0,W,H);ctx.fillStyle='#febc2e';ctx.font='bold 14px Segoe UI';ctx.textAlign='center';ctx.fillText('اضغط للبدء',W/2,H/2);
+  canvas.addEventListener('click',e=>{
+    if(!andArrRunning){start();return;}
+    const r=canvas.getBoundingClientRect();const mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+    for(let i=arrows.length-1;i>=0;i--){if(Math.abs(arrows[i].x-mx)<26&&Math.abs(arrows[i].y-my)<26){arrows.splice(i,1);score++;updateHUD();break;}}
+  });
+  canvas.addEventListener('touchend',e=>{
+    e.preventDefault();
+    if(!andArrRunning){start();return;}
+    const r=canvas.getBoundingClientRect();const mx=(e.changedTouches[0].clientX-r.left)*(W/r.width),my=(e.changedTouches[0].clientY-r.top)*(H/r.height);
+    for(let i=arrows.length-1;i>=0;i--){if(Math.abs(arrows[i].x-mx)<26&&Math.abs(arrows[i].y-my)<26){arrows.splice(i,1);score++;updateHUD();break;}}
+  },{passive:false});
 }
-function playUserSong(idx){playSong(idx,true);}
-let fakeTime=0,fakeDur=0,fakeMax=0;
-function startFakeProgress(durStr){
-  const parts=durStr.split(':');fakeDur=parseInt(parts[0])*60+parseInt(parts[1]);fakeTime=0;fakeMax=fakeDur;
-  document.getElementById('prog-total').textContent=durStr;
-  clearInterval(progInterval);
-  progInterval=setInterval(()=>{
-    if(!musicPlaying)return;
-    fakeTime+=1;if(fakeTime>fakeMax)fakeTime=0;
-    const pct=(fakeTime/fakeMax)*100;
-    const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
-    const pc=document.getElementById('prog-cur');if(pc)pc.textContent=fmtTime(fakeTime);
-  },1000);
+
+function andGalleryUI(c){
+  const photos=['🌅','🌊','🏔️','🌸','🌙','🦋','🌺','🦁','🐬','🦅','🌈','❄️'];
+  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px">${photos.map(p=>`<div style="aspect-ratio:1;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer">${p}</div>`).join('')}</div>`;
 }
-function updatePlayerUI(name,artist,emoji){
-  const pa=document.getElementById('player-art');if(pa)pa.textContent=emoji;
-  const ps=document.getElementById('player-song');if(ps)ps.textContent=name;
-  const par=document.getElementById('player-artist');if(par)par.textContent=artist;
+
+function andStoreUI(c){
+  c.innerHTML=`<div class="and-content">
+    <div style="background:linear-gradient(135deg,#1a73e8,#0d47a1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center">
+      <div style="color:#fff;font-size:16px;font-weight:700">🏪 TilStore</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:4px">نزّل التطبيقات على جهازك</div>
+    </div>
+    ${allStoreApps.map(a=>{
+      const ins=isInstalled(a.id);
+      return`<div class="and-card" style="display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:10px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:24px">${a.i}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#333">${a.n}</div>
+          <div style="font-size:11px;color:#888">${a.cat}</div>
+        </div>
+        <button id="asbtn-${a.id}" style="background:${ins?'#4CAF50':'#1a73e8'};border:none;border-radius:6px;color:#fff;padding:5px 12px;font-size:11px;cursor:pointer" onclick="andHandleStore('${a.id}',this)">
+          ${ins?'فتح ✓':'تثبيت'}
+        </button>
+      </div>`;
+    }).join('')}
+  </div>`;
 }
-function togglePlay(){
-  if(!currentSong){return;}
-  if(currentSong.isUser&&audio){
-    if(musicPlaying){audio.pause();musicPlaying=false;document.getElementById('play-btn').textContent='▶️';}
-    else{audio.play();musicPlaying=true;document.getElementById('play-btn').textContent='⏸️';}
-  } else {
-    musicPlaying=!musicPlaying;
-    document.getElementById('play-btn').textContent=musicPlaying?'⏸️':'▶️';
-  }
+function andHandleStore(id,btn){
+  const app=allStoreApps.find(a=>a.id===id);
+  if(!app)return;
+  if(isInstalled(id)){andOpenApp(id);return;}
+  btn.textContent='جاري...';btn.disabled=true;
+  setTimeout(()=>{installAppToDesktop(id,btn);btn.style.background='#4CAF50';},1500);
 }
-function nextSong(){if(!currentSong)return;const next=(currentSong.idx+1)%builtinSongs.length;playSong(next,false);}
-function prevSong(){if(!currentSong)return;const prev=(currentSong.idx-1+builtinSongs.length)%builtinSongs.length;playSong(prev,false);}
-function stopMusic(){if(audio){audio.pause();audio=null;}clearInterval(progInterval);musicPlaying=false;}
-function seekMusic(e,bar){
-  if(!currentSong||currentSong.isUser||!audio)return;
-  const pct=e.offsetX/bar.offsetWidth;
-  if(audio)audio.currentTime=audio.duration*pct;
-  else fakeTime=Math.floor(fakeMax*pct);
+
+function andPhoneUI(c){
+  c.innerHTML=`<div class="and-content" style="background:#263238">
+    <div style="text-align:center;padding:40px 0 20px"><div style="color:#fff;font-size:18px;opacity:.7">الاتصال</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px">
+      ${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(n=>`<button style="padding:18px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer">${n}</button>`).join('')}
+    </div>
+    <div style="text-align:center;margin-top:20px"><button style="width:64px;height:64px;border-radius:50%;background:#4CAF50;border:none;font-size:28px;cursor:pointer">📞</button></div>
+  </div>`;
 }
-function fmtTime(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
+
+function andMessagesUI(c){
+  const msgs=[{name:'أحمد',msg:'هلا! كيف الحال؟',time:'10:30'},{name:'سارة',msg:'شكراً جزيلاً 😊',time:'09:15'},{name:'محمد',msg:'تمام، أشوفك بكرة',time:'أمس'}];
+  c.innerHTML=`<div class="and-content">${msgs.map(m=>`<div class="and-card" style="display:flex;gap:12px;cursor:pointer"><div style="width:44px;height:44px;border-radius:22px;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0">${m.name[0]}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600;color:#333">${m.name}</span><span style="font-size:11px;color:#888">${m.time}</span></div><div style="font-size:12px;color:#888;margin-top:2px">${m.msg}</div></div></div>`).join('')}</div>`;
+}
+
+function andCameraUI(c){
+  c.style.background='#000';
+  c.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px"><div style="width:200px;height:200px;border-radius:16px;background:#1a1a1a;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:60px">📷</div><div style="color:#888;font-size:13px">لا يمكن الوصول للكاميرا في المحاكي</div><button style="background:#fff;border:none;border-radius:50%;width:64px;height:64px;font-size:28px;cursor:pointer">📸</button></div>`;
+}
+
+function andBrowserUI(c){
+  c.innerHTML=`<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f5f5f5;border-bottom:1px solid #ddd"><input style="width:100%;border:1px solid #ddd;border-radius:20px;padding:8px 14px;font-size:13px;outline:none;background:#fff" placeholder="ابحث أو أدخل رابطاً..." value="https://tilos.app"/></div><div style="flex:1;display:flex;align-items:center;justify-content:center;background:#fff;flex-direction:column;gap:10px"><div style="font-size:48px">🌐</div><div style="color:#888;font-size:13px">TilBrowser</div><div style="color:#bbb;font-size:11px">المتصفح المدمج في TilOS</div></div></div>`;
+}
+
 </script>
 </body>
 </html>
